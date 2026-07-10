@@ -16,6 +16,7 @@ import { useProjects, CATEGORIES, type Project, type ProjectStatus } from "@/lib
 import { ProjectEditor } from "@/components/admin/ProjectEditor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { ProjectMedia } from "@/components/ProjectMedia";
 
 export const Route = createFileRoute("/admin/projetos")({
   validateSearch: (s: Record<string, unknown>) => ({ new: s.new ? 1 : undefined }),
@@ -136,7 +137,7 @@ function ProjetosPage() {
             >
               <div className="size-12 rounded-md overflow-hidden bg-muted">
                 {p.image ? (
-                  <img src={p.image} className="w-full h-full object-cover" />
+                  <ProjectMedia src={p.image} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-primary/40 font-black text-sm">
                     {p.title.charAt(0)}

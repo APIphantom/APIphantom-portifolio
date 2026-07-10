@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Plus, Github, ArrowUpRight, FolderKanban, Image as ImageIcon, Cpu } from "lucide-react";
 import { useProjects, useMedia, useTechnologies, useSettings } from "@/lib/projects-store";
+import { ProjectMedia } from "@/components/ProjectMedia";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminHome,
@@ -107,7 +108,7 @@ function AdminHome() {
             >
               <div className="size-10 rounded-md overflow-hidden bg-muted shrink-0">
                 {p.image ? (
-                  <img src={p.image} className="w-full h-full object-cover" />
+                  <ProjectMedia src={p.image} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-primary/40 font-black text-sm">
                     {p.title.charAt(0)}

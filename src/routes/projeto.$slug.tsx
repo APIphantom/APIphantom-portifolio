@@ -162,9 +162,17 @@ function ProjectPage() {
 
   const meta = getMeta(project);
   const cat = CATEGORIES.find((c) => c.value === project.category)?.label ?? project.category;
+  const mediaSettings = project.caseStudy?.mediaSettings ?? {};
+  const heroMediaUrl = project.heroVideo || project.heroImage || project.image;
+  const showcaseGalleryVideoSettings = Object.fromEntries(
+    Object.entries(mediaSettings.gallery ?? {}).map(([index, settings]) => [Number(index) + 7, settings]),
+  );
+  const gallerySectionVideoSettings = Object.fromEntries(
+    Object.entries(mediaSettings.gallery ?? {}).map(([index, settings]) => [Number(index) + 3, settings]),
+  );
 
   const gallery = (project.gallery && project.gallery.length ? project.gallery : []).slice(0, 4);
-  const galleryImages = [project.image || "", project.heroImage || "", ...gallery].filter(Boolean);
+  const galleryImages = [project.image || "", project.heroImage || "", project.previewGif || "", ...gallery].filter(Boolean);
   const galleryLabelDefaults = [
     "Cover",
     "Hero",
@@ -483,7 +491,8 @@ function ProjectPage() {
         slug={project.slug}
         title={project.title}
         description={project.longDescription || project.description}
-        image={project.heroImage || project.image}
+        mediaUrl={heroMediaUrl}
+        mediaVideoOptions={project.heroVideo ? mediaSettings.heroVideo : mediaSettings.hero}
         status={meta.status}
         tech={project.tech}
         meta={[
@@ -520,16 +529,37 @@ function ProjectPage() {
           project.desktopMockup || "",
           project.tabletMockup || "",
           project.mobileMockup || "",
+          project.previewGif || "",
           project.heroImage || "",
+          project.heroVideo || "",
           project.image || "",
           ...gallery,
         ]}
+        mediaSettings={{
+          0: mediaSettings.desktopMockup,
+          1: mediaSettings.tabletMockup,
+          2: mediaSettings.mobileMockup,
+          3: mediaSettings.preview,
+          4: mediaSettings.hero,
+          5: mediaSettings.heroVideo,
+          6: mediaSettings.thumbnail,
+          ...showcaseGalleryVideoSettings,
+        }}
       />
 
       <DevelopmentSection timeline={timelineVisibleSteps} cards={developmentCards} />
       <PerformanceSection items={performanceResults} />
       <ResultsSection items={resultsItems} />
-      <GallerySection images={galleryImages} labels={galleryLabels} />
+      <GallerySection
+        images={galleryImages}
+        labels={galleryLabels}
+        mediaSettings={{
+          0: mediaSettings.thumbnail,
+          1: mediaSettings.hero,
+          2: mediaSettings.preview,
+          ...gallerySectionVideoSettings,
+        }}
+      />
       <LessonsSection items={learningsBlocks.length ? learningsBlocks : leftovers.slice(0, 3)} />
       <FinalCTA projectTitle={project.title} />
     </motion.div>

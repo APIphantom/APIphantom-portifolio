@@ -1,13 +1,16 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
+import { ProjectMedia } from "@/components/ProjectMedia";
+import type { VideoMediaOptions } from "@/lib/project-media";
 
 type Props = {
   images: string[];
+  mediaSettings?: Record<number, VideoMediaOptions>;
   index: number | null;
   onClose: () => void;
 };
 
-export function LightboxGallery({ images, index, onClose }: Props) {
+export function LightboxGallery({ images, mediaSettings = {}, index, onClose }: Props) {
   const reducedMotion = useReducedMotion();
   const current = index !== null ? images[index] : null;
 
@@ -38,10 +41,12 @@ export function LightboxGallery({ images, index, onClose }: Props) {
             className="h-full w-full flex items-center justify-center"
             onClick={(event) => event.stopPropagation()}
           >
-            <img
+            <ProjectMedia
               src={current}
               alt="Preview"
               className="max-h-[88vh] max-w-[92vw] rounded-2xl border border-border/80 object-contain shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+              fit="contain"
+              videoOptions={index !== null ? mediaSettings[index] : undefined}
             />
           </motion.div>
         </motion.div>

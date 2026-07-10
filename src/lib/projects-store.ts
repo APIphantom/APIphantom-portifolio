@@ -22,6 +22,7 @@ import {
   updateSettings,
 } from "./portfolio.functions";
 import type { MediaUpload, ProjectMedia } from "./media-types";
+import type { VideoMediaOptions } from "./project-media";
 
 /* ============ TIPOS (mantidos da versão antiga) ============ */
 export type ProjectCategory = "web" | "ui" | "ecommerce" | "experiment" | "mobile";
@@ -81,6 +82,20 @@ export type CaseStudy = {
   learnings?: string[];
   performance?: Metric[];
   codeNumbers?: Metric[];
+  mediaSettings?: ProjectMediaSettings;
+};
+
+export type ProjectMediaSettings = {
+  thumbnail?: VideoMediaOptions;
+  hero?: VideoMediaOptions;
+  heroVideo?: VideoMediaOptions;
+  desktopMockup?: VideoMediaOptions;
+  tabletMockup?: VideoMediaOptions;
+  mobileMockup?: VideoMediaOptions;
+  preview?: VideoMediaOptions;
+  gallery?: Record<number, VideoMediaOptions>;
+  seoOg?: VideoMediaOptions;
+  seoTwitter?: VideoMediaOptions;
 };
 
 export type Project = {

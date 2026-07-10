@@ -1,13 +1,16 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { LightboxGallery } from "./LightboxGallery";
+import { ProjectMedia } from "@/components/ProjectMedia";
+import type { VideoMediaOptions } from "@/lib/project-media";
 
 type Props = {
   images: string[];
   labels?: string[];
+  mediaSettings?: Record<number, VideoMediaOptions>;
 };
 
-export function GallerySection({ images, labels = [] }: Props) {
+export function GallerySection({ images, labels = [], mediaSettings = {} }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const valid = useMemo(() => images.filter(Boolean), [images]);
 
@@ -43,10 +46,11 @@ export function GallerySection({ images, labels = [] }: Props) {
               className="group relative overflow-hidden rounded-xl border border-border/70 bg-background/40"
               data-cursor="view"
             >
-              <img
+              <ProjectMedia
                 src={src}
                 alt={labels[i]?.trim() || `Galeria ${i + 1}`}
                 className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-110"
+                videoOptions={mediaSettings[i]}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/65 to-transparent opacity-70" />
               {(labels[i]?.trim() || "").length > 0 && (
@@ -59,7 +63,12 @@ export function GallerySection({ images, labels = [] }: Props) {
         </div>
       </motion.div>
 
-      <LightboxGallery images={valid} index={lightboxIndex} onClose={() => setLightboxIndex(null)} />
+      <LightboxGallery
+        images={valid}
+        mediaSettings={mediaSettings}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+      />
     </section>
   );
 }

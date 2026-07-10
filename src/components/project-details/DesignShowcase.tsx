@@ -2,12 +2,15 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LightboxGallery } from "./LightboxGallery";
+import { ProjectMedia } from "@/components/ProjectMedia";
+import type { VideoMediaOptions } from "@/lib/project-media";
 
 type Props = {
   images: string[];
+  mediaSettings?: Record<number, VideoMediaOptions>;
 };
 
-export function DesignShowcase({ images }: Props) {
+export function DesignShowcase({ images, mediaSettings = {} }: Props) {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const valid = useMemo(() => images.filter(Boolean), [images]);
@@ -31,11 +34,12 @@ export function DesignShowcase({ images }: Props) {
         </div>
 
         <div className="relative rounded-2xl border border-border/70 bg-background/40 p-3 md:p-4">
-          <img
+          <ProjectMedia
             src={valid[idx]}
             alt="Showcase"
             className="w-full aspect-[16/8] object-cover rounded-xl cursor-zoom-in"
-            onClick={() => setLightbox(idx)}
+            containerProps={{ onClick: () => setLightbox(idx) }}
+            videoOptions={mediaSettings[idx]}
           />
 
           <button
@@ -66,13 +70,23 @@ export function DesignShowcase({ images }: Props) {
                 i === idx ? "border-primary/60" : "border-border/70"
               }`}
             >
-              <img src={src} alt={`thumb-${i}`} className="w-full aspect-[4/3] object-cover" />
+              <ProjectMedia
+                src={src}
+                alt={`thumb-${i}`}
+                className="w-full aspect-[4/3] object-cover"
+                videoOptions={mediaSettings[i]}
+              />
             </button>
           ))}
         </div>
       </motion.div>
 
-      <LightboxGallery images={valid} index={lightbox} onClose={() => setLightbox(null)} />
+      <LightboxGallery
+        images={valid}
+        mediaSettings={mediaSettings}
+        index={lightbox}
+        onClose={() => setLightbox(null)}
+      />
     </section>
   );
 }

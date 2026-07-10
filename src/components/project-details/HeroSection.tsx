@@ -3,13 +3,15 @@ import { ArrowRight } from "lucide-react";
 import { FloatingMockup } from "./FloatingMockup";
 import { ProjectMetrics } from "./ProjectMetrics";
 import type { MetaPill } from "./types";
+import type { VideoMediaOptions } from "@/lib/project-media";
 
 type Props = {
   category: string;
   slug: string;
   title: string;
   description: string;
-  image?: string;
+  mediaUrl?: string;
+  mediaVideoOptions?: VideoMediaOptions;
   status: string;
   tech: string[];
   meta: MetaPill[];
@@ -22,7 +24,8 @@ export function HeroSection({
   slug,
   title,
   description,
-  image,
+  mediaUrl,
+  mediaVideoOptions,
   status,
   tech,
   meta,
@@ -112,7 +115,12 @@ export function HeroSection({
         </div>
 
         <div className="lg:col-span-7">
-          <FloatingMockup title={title} image={image} status={status} />
+          <FloatingMockup
+            title={title}
+            mediaUrl={mediaUrl}
+            mediaVideoOptions={mediaVideoOptions}
+            status={status}
+          />
         </div>
       </div>
     </header>

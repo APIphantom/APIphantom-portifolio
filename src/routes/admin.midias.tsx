@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { UploadCloud, Search, Trash2, Copy, X } from "lucide-react";
 import { useMedia } from "@/lib/projects-store";
 import { toast } from "sonner";
+import { ProjectMedia } from "@/components/ProjectMedia";
 
 export const Route = createFileRoute("/admin/midias")({
   component: MidiasPage,
@@ -240,15 +241,14 @@ function MidiasPage() {
             key={m.id}
             className="group relative aspect-square rounded-xl overflow-hidden border border-border bg-card/30"
           >
-            {m.type === "image" || m.type === "gif" ? (
-              <img
-                src={m.url}
-                className="w-full h-full object-cover"
-                onClick={() => setPreview(m.url)}
-              />
-            ) : (
-              <video src={m.url} className="w-full h-full object-cover" muted controls />
-            )}
+            <ProjectMedia
+              src={m.url}
+              mediaType={m.type}
+              mimeType={m.mimeType}
+              className="w-full h-full object-cover"
+              containerProps={{ onClick: () => setPreview(m.url) }}
+              videoOptions={{ muted: true, controls: true, preload: "metadata" }}
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
               <div className="text-[10px] font-bold truncate">{m.name}</div>
               <div className="text-[9px] text-muted-foreground">
@@ -286,7 +286,12 @@ function MidiasPage() {
           className="fixed inset-0 z-[80] flex items-center justify-center p-6 bg-background/90 backdrop-blur-xl"
           onClick={() => setPreview(null)}
         >
-          <img src={preview} className="max-w-full max-h-full rounded-xl border border-border" />
+          <ProjectMedia
+            src={preview}
+            className="max-w-full max-h-full rounded-xl border border-border object-contain"
+            fit="contain"
+            videoOptions={{ controls: true, muted: true, preload: "metadata" }}
+          />
           <button className="absolute top-4 right-4 size-10 rounded-full border border-border flex items-center justify-center">
             <X />
           </button>

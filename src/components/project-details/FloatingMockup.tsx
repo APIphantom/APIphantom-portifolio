@@ -1,13 +1,16 @@
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { ImageIcon } from "lucide-react";
+import { ProjectMedia } from "@/components/ProjectMedia";
+import type { VideoMediaOptions } from "@/lib/project-media";
 
 type Props = {
   title: string;
-  image?: string;
+  mediaUrl?: string;
+  mediaVideoOptions?: VideoMediaOptions;
   status: string;
 };
 
-export function FloatingMockup({ title, image, status }: Props) {
+export function FloatingMockup({ title, mediaUrl, mediaVideoOptions, status }: Props) {
   const reducedMotion = useReducedMotion();
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
@@ -34,8 +37,22 @@ export function FloatingMockup({ title, image, status }: Props) {
         data-cursor="details"
       >
         <div className="absolute -inset-6 -z-10 bg-[radial-gradient(circle,rgba(255,212,0,0.32),transparent_58%)] blur-3xl" />
-        {image ? (
-          <img src={image} alt={title} className="absolute inset-0 h-full w-full object-cover" />
+        {mediaUrl ? (
+          <ProjectMedia
+            src={mediaUrl}
+            alt={title}
+            className="absolute inset-0 h-full w-full object-cover"
+            videoOptions={{
+              controls: mediaVideoOptions?.controls ?? true,
+              muted: mediaVideoOptions?.muted ?? true,
+              loop: mediaVideoOptions?.loop ?? true,
+              autoplay: mediaVideoOptions?.autoplay,
+              playsInline: mediaVideoOptions?.playsInline ?? true,
+              preload: mediaVideoOptions?.preload ?? "metadata",
+              poster: mediaVideoOptions?.poster,
+              objectFit: mediaVideoOptions?.objectFit ?? "cover",
+            }}
+          />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="display text-[9rem] text-primary/10">{title.charAt(0)}</span>

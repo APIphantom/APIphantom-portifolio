@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, UploadCloud, Plus, Trash2, GripVertical, Save } from "lucide-react";
+import { ProjectMedia } from "@/components/ProjectMedia";
 import {
   CATEGORIES,
   slugify,
@@ -16,6 +17,11 @@ import {
 } from "@/lib/projects-store";
 import { toast } from "sonner";
 import type { MediaCategory } from "@/lib/media-types";
+import {
+  detectMediaKind,
+  resolveVideoOptions,
+  type VideoMediaOptions,
+} from "@/lib/project-media";
 
 type Props = {
   open: boolean;
@@ -68,6 +74,7 @@ const emptyProject: Omit<Project, "id"> = {
     learnings: [],
     performance: [],
     codeNumbers: [],
+    mediaSettings: {},
   },
   client: "",
   year: String(new Date().getFullYear()),
@@ -982,6 +989,43 @@ type MidiaTabProps = {
 };
 
 function MidiaTab({ form, patch, projectId, mediaItems, addAsync, remove }: MidiaTabProps) {
+  const mediaSettings = form.caseStudy?.mediaSettings ?? {};
+  const setMediaSettings = (next: NonNullable<FormT["caseStudy"]>["mediaSettings"]) => {
+    patch({
+      caseStudy: {
+        ...(form.caseStudy ?? {}),
+        mediaSettings: next,
+      },
+    });
+  };
+
+  const setSlotVideoSettings = (
+    slot:
+      | "thumbnail"
+      | "hero"
+      | "heroVideo"
+      | "desktopMockup"
+      | "tabletMockup"
+      | "mobileMockup"
+      | "preview",
+    options: VideoMediaOptions,
+  ) => {
+    setMediaSettings({
+      ...mediaSettings,
+      [slot]: options,
+    });
+  };
+
+  const setGalleryVideoSettings = (index: number, options: VideoMediaOptions) => {
+    setMediaSettings({
+      ...mediaSettings,
+      gallery: {
+        ...(mediaSettings.gallery ?? {}),
+        [index]: options,
+      },
+    });
+  };
+
   const uploadField = async (
     file: File,
     category: MediaCategory,
@@ -996,6 +1040,9 @@ function MidiaTab({ form, patch, projectId, mediaItems, addAsync, remove }: Midi
       return;
     }
 
+
+  const defaultVideoOptions = (): VideoMediaOptions =>
+    resolveVideoOptions({ controls: true, autoplay: false, loop: true, muted: true });
     const previous = mediaItems.find(
       (m) => m.projectId === projectId && m.category === category && m.url === currentUrl,
     );
@@ -1065,28 +1112,19 @@ function MidiaTab({ form, patch, projectId, mediaItems, addAsync, remove }: Midi
         </div>
         <ul className="space-y-1.5 text-xs text-muted-foreground">
           <li>
-            <span className="font-semibold text-foreground">Thumbnail / Cover:</span> usado no
-            card e fallback geral. Recomendado <span className="font-semibold text-foreground">1200x1500 px (4:5)</span>.
+            <span className="font-semibold text-foreground">Thumbnail / Cover:</span> aceita imagem, GIF ou video. Usado no card e fallback geral.
           </li>
           <li>
-            <span className="font-semibold text-foreground">Banner / Hero Image:</span> usado no
-            hero da pagina de projeto. Recomendado <span className="font-semibold text-foreground">1600x1200 px (4:3)</span>.
+            <span className="font-semibold text-foreground">Hero Midia:</span> aceita imagem, GIF ou video para o hero da pagina.
           </li>
           <li>
-            <span className="font-semibold text-foreground">Hero Video:</span> secao
-            "Project Walkthrough" em <span className="font-semibold text-foreground">16:9</span>.
-            Ideal <span className="font-semibold text-foreground">1920x1080 px</span>, minimo
-            <span className="font-semibold text-foreground"> 1280x720 px</span>.
+            <span className="font-semibold text-foreground">Hero Video dedicado:</span> opcional para substituir a midia do hero com total controle de playback.
           </li>
           <li>
-            <span className="font-semibold text-foreground">Galeria (Homepage, Best Sellers, Product Page, Checkout):</span>
-            cards em <span className="font-semibold text-foreground">4:3</span>. Recomendado
-            <span className="font-semibold text-foreground"> 1600x1200 px</span> por item.
+            <span className="font-semibold text-foreground">Galeria:</span> cada slot aceita imagem, GIF ou video.
           </li>
           <li>
-            <span className="font-semibold text-foreground">Preview GIF:</span> bloco dedicado em
-            <span className="font-semibold text-foreground"> 16:9</span>. Recomendado
-            <span className="font-semibold text-foreground"> 1280x720 px</span>.
+            <span className="font-semibold text-foreground">Preview de demo:</span> agora suporta GIF e video alem de imagem.
           </li>
           <li>
             <span className="font-semibold text-foreground">Desktop Mockup:</span> exibido em
@@ -1110,22 +1148,41 @@ function MidiaTab({ form, patch, projectId, mediaItems, addAsync, remove }: Midi
         label="Thumbnail / Cover"
         value={form.image}
         onChange={(v) => patch({ image: v })}
+        accept="image/*,video/*"
         onUpload={(file) => uploadField(file, "thumbnail", form.image)}
+      />
+      <VideoSettingsEditor
+        label="Configuração de vídeo - Thumbnail"
+        mediaUrl={form.image}
+        value={mediaSettings.thumbnail ?? defaultVideoOptions()}
+        onChange={(next) => setSlotVideoSettings("thumbnail", next)}
       />
       <Row>
         <ImageDrop
-          label="Banner / Hero Image"
+          label="Hero Midia"
           value={form.heroImage ?? ""}
           onChange={(v) => patch({ heroImage: v })}
+          accept="image/*,video/*"
           onUpload={(file) => uploadField(file, "banner", form.heroImage ?? "")}
+        />
+        <VideoSettingsEditor
+          label="Configuração de vídeo - Hero Midia"
+          mediaUrl={form.heroImage ?? ""}
+          value={mediaSettings.hero ?? defaultVideoOptions()}
+          onChange={(next) => setSlotVideoSettings("hero", next)}
         />
         <ImageDrop
           label="Hero Video"
           value={form.heroVideo ?? ""}
           onChange={(v) => patch({ heroVideo: v })}
-          accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
-          mode="video"
+          accept="image/*,video/*"
           onUpload={(file) => uploadField(file, "hero_video", form.heroVideo ?? "")}
+        />
+        <VideoSettingsEditor
+          label="Configuração de vídeo - Hero Video"
+          mediaUrl={form.heroVideo ?? ""}
+          value={mediaSettings.heroVideo ?? defaultVideoOptions()}
+          onChange={(next) => setSlotVideoSettings("heroVideo", next)}
         />
       </Row>
 
@@ -1134,33 +1191,62 @@ function MidiaTab({ form, patch, projectId, mediaItems, addAsync, remove }: Midi
           label="Desktop Mockup"
           value={form.desktopMockup ?? ""}
           onChange={(v) => patch({ desktopMockup: v })}
+          accept="image/*,video/*"
           onUpload={(file) => uploadField(file, "desktop", form.desktopMockup ?? "")}
+        />
+        <VideoSettingsEditor
+          label="Configuração de vídeo - Desktop"
+          mediaUrl={form.desktopMockup ?? ""}
+          value={mediaSettings.desktopMockup ?? defaultVideoOptions()}
+          onChange={(next) => setSlotVideoSettings("desktopMockup", next)}
         />
         <ImageDrop
           label="Tablet Mockup"
           value={form.tabletMockup ?? ""}
           onChange={(v) => patch({ tabletMockup: v })}
+          accept="image/*,video/*"
           onUpload={(file) => uploadField(file, "tablet", form.tabletMockup ?? "")}
+        />
+        <VideoSettingsEditor
+          label="Configuração de vídeo - Tablet"
+          mediaUrl={form.tabletMockup ?? ""}
+          value={mediaSettings.tabletMockup ?? defaultVideoOptions()}
+          onChange={(next) => setSlotVideoSettings("tabletMockup", next)}
         />
         <ImageDrop
           label="Mobile Mockup"
           value={form.mobileMockup ?? ""}
           onChange={(v) => patch({ mobileMockup: v })}
+          accept="image/*,video/*"
           onUpload={(file) => uploadField(file, "mobile", form.mobileMockup ?? "")}
+        />
+        <VideoSettingsEditor
+          label="Configuração de vídeo - Mobile"
+          mediaUrl={form.mobileMockup ?? ""}
+          value={mediaSettings.mobileMockup ?? defaultVideoOptions()}
+          onChange={(next) => setSlotVideoSettings("mobileMockup", next)}
         />
       </Row>
       <ImageDrop
-        label="Preview GIF"
+        label="Preview de Demo"
         value={form.previewGif ?? ""}
         onChange={(v) => patch({ previewGif: v })}
-        accept="image/gif"
+        accept="image/*,video/*"
         onUpload={(file) => uploadField(file, "demo", form.previewGif ?? "")}
+      />
+      <VideoSettingsEditor
+        label="Configuração de vídeo - Preview de Demo"
+        mediaUrl={form.previewGif ?? ""}
+        value={mediaSettings.preview ?? defaultVideoOptions()}
+        onChange={(next) => setSlotVideoSettings("preview", next)}
       />
       <GalleryEditor
         value={form.gallery ?? []}
+        mediaSettings={mediaSettings.gallery ?? {}}
         labels={form.galleryLabels ?? ["Homepage", "Best Sellers", "Product Page", "Checkout"]}
         onChangeLabels={(labels) => patch({ galleryLabels: labels })}
         onChange={(g) => patch({ gallery: g })}
+        onChangeVideoSettings={setGalleryVideoSettings}
         onUpload={async (file, index) => {
           await uploadField(file, "gallery", form.gallery?.[index] ?? "", index);
         }}
@@ -1171,15 +1257,19 @@ function MidiaTab({ form, patch, projectId, mediaItems, addAsync, remove }: Midi
 
 function GalleryEditor({
   value,
+  mediaSettings,
   labels,
   onChangeLabels,
   onChange,
+  onChangeVideoSettings,
   onUpload,
 }: {
   value: string[];
+  mediaSettings: Record<number, VideoMediaOptions>;
   labels: string[];
   onChangeLabels: (v: string[]) => void;
   onChange: (v: string[]) => void;
+  onChangeVideoSettings: (index: number, settings: VideoMediaOptions) => void;
   onUpload?: (file: File, index: number) => Promise<void>;
 }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -1247,12 +1337,12 @@ function GalleryEditor({
           onClick={() => ref.current?.click()}
           className="text-xs text-primary hover:underline"
         >
-          + Adicionar imagens
+          + Adicionar mídias
         </button>
         <input
           ref={ref}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           hidden
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
@@ -1277,10 +1367,10 @@ function GalleryEditor({
               />
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border group bg-card/20">
                 {src ? (
-                  <img src={src} className="w-full h-full object-cover" />
+                  <ProjectMedia src={src} className="w-full h-full object-cover" videoOptions={mediaSettings[i]} />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
-                    Selecione a imagem da seção
+                    Selecione a mídia da seção
                   </div>
                 )}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background/45 backdrop-blur-[1px] flex items-center justify-center gap-2">
@@ -1306,7 +1396,7 @@ function GalleryEditor({
                     slotRefs.current[i] = el;
                   }}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   hidden
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
@@ -1314,6 +1404,13 @@ function GalleryEditor({
                   }}
                 />
               </div>
+              <VideoSettingsEditor
+                label={`Configuração de vídeo - ${slot}`}
+                mediaUrl={src}
+                value={mediaSettings[i] ?? resolveVideoOptions({ controls: true })}
+                compact
+                onChange={(settings) => onChangeVideoSettings(i, settings)}
+              />
             </div>
           );
         })}
@@ -1332,7 +1429,11 @@ function GalleryEditor({
                   key={i}
                   className="relative aspect-square rounded-lg overflow-hidden border border-border group"
                 >
-                  <img src={src} className="w-full h-full object-cover" />
+                  <ProjectMedia
+                    src={src}
+                    className="w-full h-full object-cover"
+                    videoOptions={mediaSettings[i]}
+                  />
                   <button
                     type="button"
                     onClick={() => onChange(value.filter((_, ii) => ii !== i))}
@@ -1349,9 +1450,111 @@ function GalleryEditor({
 
       {value.length === 0 && (
         <div className="col-span-full text-xs text-muted-foreground text-center py-6 border border-dashed border-border rounded-lg">
-          Sem imagens na galeria
+          Sem mídias na galeria
         </div>
       )}
+    </div>
+  );
+}
+
+function VideoSettingsEditor({
+  label,
+  mediaUrl,
+  value,
+  onChange,
+  compact,
+}: {
+  label: string;
+  mediaUrl: string;
+  value: VideoMediaOptions;
+  onChange: (next: VideoMediaOptions) => void;
+  compact?: boolean;
+}) {
+  const isVideo = detectMediaKind({ src: mediaUrl }) === "video";
+  if (!mediaUrl || !isVideo) return null;
+
+  const set = (patchValue: Partial<VideoMediaOptions>) => onChange({ ...value, ...patchValue });
+
+  return (
+    <div className={`rounded-lg border border-border bg-background/25 ${compact ? "p-2.5" : "p-3"}`}>
+      <div className="text-[10px] uppercase tracking-widest text-primary mb-2">{label}</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={value.autoplay ?? false}
+            onChange={(e) => set({ autoplay: e.target.checked })}
+            className="size-3.5 accent-primary"
+          />
+          autoplay
+        </label>
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={value.loop ?? true}
+            onChange={(e) => set({ loop: e.target.checked })}
+            className="size-3.5 accent-primary"
+          />
+          loop
+        </label>
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={value.muted ?? true}
+            onChange={(e) => set({ muted: e.target.checked })}
+            className="size-3.5 accent-primary"
+          />
+          muted
+        </label>
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={value.controls ?? true}
+            onChange={(e) => set({ controls: e.target.checked })}
+            className="size-3.5 accent-primary"
+          />
+          controls
+        </label>
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={value.playsInline ?? true}
+            onChange={(e) => set({ playsInline: e.target.checked })}
+            className="size-3.5 accent-primary"
+          />
+          playsInline
+        </label>
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            preload
+          </label>
+          <select
+            value={value.preload ?? "metadata"}
+            onChange={(e) => set({ preload: e.target.value as VideoMediaOptions["preload"] })}
+            className="w-full bg-background border border-border rounded px-2 py-1 text-xs focus:border-primary outline-none"
+          >
+            <option value="none">none</option>
+            <option value="metadata">metadata</option>
+            <option value="auto">auto</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            object-fit
+          </label>
+          <select
+            value={value.objectFit ?? "cover"}
+            onChange={(e) => set({ objectFit: e.target.value as VideoMediaOptions["objectFit"] })}
+            className="w-full bg-background border border-border rounded px-2 py-1 text-xs focus:border-primary outline-none"
+          >
+            <option value="cover">cover</option>
+            <option value="contain">contain</option>
+          </select>
+        </div>
+      </div>
+      <div className="mt-2">
+        <Field label="Poster" value={value.poster ?? ""} onChange={(next) => set({ poster: next })} />
+      </div>
     </div>
   );
 }
@@ -1662,7 +1865,7 @@ function ImageDrop({
   label,
   value,
   onChange,
-  accept = "image/*",
+  accept = "image/*,video/*",
   mode = "image",
   onUpload,
 }: {
@@ -1676,10 +1879,7 @@ function ImageDrop({
   const ref = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
   const [busy, setBusy] = useState(false);
-  const isVideo =
-    mode === "video" ||
-    /^data:video\//i.test(value) ||
-    /\.(mp4|webm|mov|avi|mkv)(\?.*)?$/i.test(value);
+  const isVideo = mode === "video" || detectMediaKind({ src: value }) === "video";
 
   const handleFile = async (f: File) => {
     const r = new FileReader();
@@ -1721,11 +1921,11 @@ function ImageDrop({
       >
         {value ? (
           <>
-            {isVideo ? (
-              <video src={value} className="absolute inset-0 w-full h-full object-cover" controls />
-            ) : (
-              <img src={value} className="absolute inset-0 w-full h-full object-cover" />
-            )}
+            <ProjectMedia
+              src={value}
+              className="absolute inset-0 w-full h-full object-cover"
+              videoOptions={{ controls: true, muted: true, preload: "metadata" }}
+            />
             {busy && (
               <div className="absolute inset-0 bg-background/65 backdrop-blur-sm flex items-center justify-center text-xs uppercase tracking-widest text-primary">
                 Enviando...

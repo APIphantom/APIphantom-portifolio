@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { Github, ExternalLink, ImageIcon, ArrowUpRight } from "lucide-react";
 import { CATEGORIES, type Project } from "@/lib/projects-store";
 import { TiltCard } from "./TiltCard";
-import { LazyImage } from "./LazyImage";
+import { ProjectMedia } from "./ProjectMedia";
+import { detectMediaKind } from "@/lib/project-media";
 
 type Props = { project: Project; index: number };
 
@@ -17,7 +18,7 @@ function ProjectCardBase({ project: p, index: i }: Props) {
   const prefetchHero = useCallback(() => {
     if (prefetched.current) return;
     const url = p.heroImage || p.image;
-    if (!url) return;
+    if (!url || detectMediaKind({ src: url }) === "video") return;
     prefetched.current = true;
     const img = new Image();
     img.decoding = "async";
@@ -42,12 +43,15 @@ function ProjectCardBase({ project: p, index: i }: Props) {
           >
             <div className="relative">
               {p.image ? (
-                <LazyImage
-                  src={p.image}
-                  alt={p.title}
-                  aspect="aspect-[4/5]"
-                  className="transition-transform duration-700 group-hover:scale-110"
-                />
+                <div className="aspect-[4/5] overflow-hidden">
+                  <ProjectMedia
+                    src={p.image}
+                    alt={p.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    imageProps={{ loading: "lazy" }}
+                    videoOptions={{ muted: true, loop: true, playsInline: true, preload: "metadata" }}
+                  />
+                </div>
               ) : (
                 <div className="aspect-[4/5] relative bg-gradient-to-br from-graphite to-background flex items-center justify-center">
                   <span className="display text-[8rem] text-primary/10">{p.title.charAt(0)}</span>
