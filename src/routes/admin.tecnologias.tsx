@@ -1,15 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Plus, Trash2, Search, Pencil } from "lucide-react";
-import { useTechnologies, type Technology } from "@/lib/projects-store";
+import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import { Plus, Trash2, Search, Pencil } from 'lucide-react';
+import { useTechnologies, type Technology } from '@/lib/projects-store';
+import { BRAND_OPTIONS, TechnologyBrandIcon } from '@/components/admin/TechnologyBrandIcon';
 
-export const Route = createFileRoute("/admin/tecnologias")({
+export const Route = createFileRoute('/admin/tecnologias')({
   component: TechPage,
 });
 
 function TechPage() {
   const { items, add, update, remove } = useTechnologies();
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState('');
   const [editing, setEditing] = useState<Technology | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -55,12 +56,7 @@ function TechPage() {
             key={t.id}
             className="flex items-center gap-4 p-4 hover:bg-muted/10 transition-colors"
           >
-            <div
-              className="size-10 rounded-md flex items-center justify-center font-bold text-sm border border-border"
-              style={{ background: t.color ? `${t.color}20` : undefined, color: t.color }}
-            >
-              {t.name.charAt(0)}
-            </div>
+            <TechnologyBrandIcon name={t.name} icon={t.icon} className="size-8 shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="font-bold">{t.name}</div>
               <div className="text-xs text-muted-foreground">
@@ -113,9 +109,9 @@ function TechModal({
 }: {
   tech: Technology | null;
   onClose: () => void;
-  onSave: (t: Omit<Technology, "id">) => void;
+  onSave: (t: Omit<Technology, 'id'>) => void;
 }) {
-  const [form, setForm] = useState<Omit<Technology, "id">>(
+  const [form, setForm] = useState<Omit<Technology, 'id'>>(
     tech
       ? {
           name: tech.name,
@@ -124,7 +120,7 @@ function TechModal({
           color: tech.color,
           icon: tech.icon,
         }
-      : { name: "", category: "Frontend", color: "#FFD400" },
+      : { name: '', category: 'Frontend', color: '#FFD400' },
   );
   return (
     <div
@@ -136,7 +132,7 @@ function TechModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-[10px] uppercase tracking-[0.3em] text-primary">
-          // {tech ? "Editar" : "Nova"} tecnologia
+          // {tech ? 'Editar' : 'Nova'} tecnologia
         </div>
         <Input label="Nome" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
         <Input
@@ -144,14 +140,35 @@ function TechModal({
           value={form.category}
           onChange={(v) => setForm({ ...form, category: v })}
         />
-        <Input label="URL" value={form.url ?? ""} onChange={(v) => setForm({ ...form, url: v })} />
+        <Input label="URL" value={form.url ?? ''} onChange={(v) => setForm({ ...form, url: v })} />
+        <div>
+          <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">
+            Logotipo da tecnologia
+          </label>
+          <select
+            value={form.icon ?? ''}
+            onChange={(event) => setForm({ ...form, icon: event.target.value || undefined })}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:border-primary outline-none"
+          >
+            <option value="">Detectar pelo nome</option>
+            {BRAND_OPTIONS.map((brand) => (
+              <option key={brand.slug} value={brand.slug}>
+                {brand.label}
+              </option>
+            ))}
+          </select>
+          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <TechnologyBrandIcon name={form.name} icon={form.icon} className="size-5" />
+            <span>O logotipo acompanha automaticamente o nome quando houver correspondência.</span>
+          </div>
+        </div>
         <div>
           <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">
             Cor
           </label>
           <input
             type="color"
-            value={form.color ?? "#FFD400"}
+            value={form.color ?? '#FFD400'}
             onChange={(e) => setForm({ ...form, color: e.target.value })}
             className="h-10 w-full rounded-lg border border-border bg-background"
           />
