@@ -1,20 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Code2 } from 'lucide-react';
-
-const BRAND_OPTIONS = [
-  { label: 'CSS', slug: 'css' },
-  { label: 'Figma', slug: 'figma' },
-  { label: 'Framer Motion', slug: 'framer' },
-  { label: 'Git', slug: 'git' },
-  { label: 'HTML', slug: 'html5' },
-  { label: 'JavaScript', slug: 'javascript' },
-  { label: 'Next.js', slug: 'nextdotjs' },
-  { label: 'Node.js', slug: 'nodedotjs' },
-  { label: 'React', slug: 'react' },
-  { label: 'Supabase', slug: 'supabase' },
-  { label: 'Tailwind CSS', slug: 'tailwindcss' },
-  { label: 'TypeScript', slug: 'typescript' },
-] as const;
+import { BRAND_OPTIONS } from '@/lib/technology-catalog';
 
 function normalize(value: string) {
   return value

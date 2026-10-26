@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
-import { Plus, Trash2, Search, Pencil } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Plus, Trash2, Search, Pencil, X, Check } from 'lucide-react';
 import { useTechnologies, type Technology } from '@/lib/projects-store';
 import { BRAND_OPTIONS, TechnologyBrandIcon } from '@/components/admin/TechnologyBrandIcon';
+import { TECHNOLOGY_CATALOG, type CatalogTechnology } from '@/lib/technology-catalog';
 
 export const Route = createFileRoute('/admin/tecnologias')({
   component: TechPage,
@@ -13,6 +14,7 @@ function TechPage() {
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<Technology | null>(null);
   const [creating, setCreating] = useState(false);
+  const [catalogOpen, setCatalogOpen] = useState(false);
 
   const filtered = items.filter(
     (t) =>
@@ -32,12 +34,20 @@ function TechPage() {
             {items.length} tecnologias reutilizáveis
           </p>
         </div>
-        <button
-          onClick={() => setCreating(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:glow-neon transition-shadow"
-        >
-          <Plus className="size-4" /> Nova
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setCatalogOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-primary/50 text-primary text-xs font-bold uppercase tracking-widest hover:bg-primary/10 transition-colors"
+          >
+            <Search className="size-4" /> Explorar catálogo
+          </button>
+          <button
+            onClick={() => setCreating(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:glow-neon transition-shadow"
+          >
+            <Plus className="size-4" /> Nova
+          </button>
+        </div>
       </header>
 
       <div className="relative">
@@ -98,6 +108,197 @@ function TechPage() {
           }}
         />
       )}
+      {catalogOpen && (
+        <TechnologyCatalogModal
+          technologies={items}
+          onClose={() => setCatalogOpen(false)}
+          onAdd={(technology) => add(technology)}
+        />
+      )}
+    </div>
+  );
+}
+
+function normalize(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function TechnologyCatalogModal({
+  technologies,
+  onClose,
+  onAdd,
+}: {
+  technologies: Technology[];
+  onClose: () => void;
+  onAdd: (technology: Omit<Technology, 'id'>) => void;
+}) {
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('Todas');
+  const [addedSlugs, setAddedSlugs] = useState<string[]>([]);
+  const categories = useMemo(
+    () => ['Todas', ...new Set(TECHNOLOGY_CATALOG.map((technology) => technology.category))],
+    [],
+  );
+  const existingSlugs = useMemo(
+    () =>
+      new Set(
+        technologies.flatMap((technology) => [
+          normalize(technology.name),
+          normalize(technology.icon ?? ''),
+        ]),
+      ),
+    [technologies],
+  );
+  const filteredCatalog = TECHNOLOGY_CATALOG.filter((technology) => {
+    const matchesCategory = category === 'Todas' || technology.category === category;
+    const searchTerm = normalize(search);
+    const matchesSearch =
+      !searchTerm ||
+      normalize(technology.label).includes(searchTerm) ||
+      normalize(technology.category).includes(searchTerm);
+    return matchesCategory && matchesSearch;
+  });
+
+  const addTechnology = (technology: CatalogTechnology) => {
+    onAdd({
+      name: technology.label,
+      category: technology.category,
+      icon: technology.slug,
+      color: '#FFD400',
+    });
+    setAddedSlugs((current) => [...current, technology.slug]);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 bg-background/85 backdrop-blur-xl"
+      onClick={onClose}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="technology-catalog-title"
+        className="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border border-border bg-card shadow-2xl"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') onClose();
+        }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="flex items-start justify-between gap-4 p-5 sm:p-6 border-b border-border">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">
+              // Catálogo oficial
+            </div>
+            <h2 id="technology-catalog-title" className="text-xl sm:text-2xl font-black">
+              Adicione tecnologias à sua Stack
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {TECHNOLOGY_CATALOG.length} opções com logotipos oficiais. Você pode adicionar novas
+              aos poucos.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar catálogo"
+            className="size-9 shrink-0 rounded-full border border-border flex items-center justify-center hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <X className="size-4" />
+          </button>
+        </header>
+
+        <div className="grid gap-3 p-4 sm:p-5 sm:grid-cols-[minmax(0,1fr)_13rem] border-b border-border">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <input
+              autoFocus
+              aria-label="Buscar no catálogo de tecnologias"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar tecnologia ou categoria..."
+              className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:border-primary outline-none"
+            />
+          </div>
+          <select
+            aria-label="Filtrar por categoria"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:border-primary outline-none"
+          >
+            {categories.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="overflow-y-auto p-4 sm:p-5">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredCatalog.map((technology) => {
+              const alreadyAdded =
+                existingSlugs.has(normalize(technology.label)) ||
+                existingSlugs.has(normalize(technology.slug)) ||
+                addedSlugs.includes(technology.slug);
+              return (
+                <div
+                  key={technology.slug}
+                  className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-background/50 p-3"
+                >
+                  <TechnologyBrandIcon
+                    name={technology.label}
+                    icon={technology.slug}
+                    className="size-7 shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold">{technology.label}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">
+                      {technology.category}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={alreadyAdded}
+                    onClick={() => addTechnology(technology)}
+                    aria-label={
+                      alreadyAdded
+                        ? `${technology.label} já adicionada`
+                        : `Adicionar ${technology.label}`
+                    }
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border text-primary hover:border-primary hover:bg-primary/10 disabled:cursor-default disabled:text-muted-foreground disabled:hover:border-border disabled:hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    {alreadyAdded ? <Check className="size-4" /> : <Plus className="size-4" />}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          {filteredCatalog.length === 0 && (
+            <p className="p-10 text-center text-sm text-muted-foreground">
+              Nenhuma opção encontrada. Use “Nova” para cadastrar uma tecnologia personalizada.
+            </p>
+          )}
+        </div>
+
+        <footer className="flex flex-col gap-3 border-t border-border p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <p className="text-xs text-muted-foreground" aria-live="polite">
+            {addedSlugs.length
+              ? `${addedSlugs.length} ${addedSlugs.length === 1 ? 'tecnologia adicionada' : 'tecnologias adicionadas'} nesta sessão.`
+              : 'Os itens selecionados aparecem na sua Stack.'}
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest"
+          >
+            Concluir
+          </button>
+        </footer>
+      </section>
     </div>
   );
 }
