@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
-import { ProblemSection } from "./ProblemSection";
-import { ObjectivesSection } from "./ObjectivesSection";
-import { ResearchSection } from "./ResearchSection";
+import { motion } from 'framer-motion';
+import { ProblemSection } from './ProblemSection';
+import { ObjectivesSection } from './ObjectivesSection';
+import { ResearchSection } from './ResearchSection';
 
 type Props = {
   problem: string;
@@ -15,7 +15,7 @@ export function ProjectSectionTriple({ problem, objectives, research }: Props) {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true, margin: '-80px' }}
         className="mx-auto max-w-7xl"
       >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

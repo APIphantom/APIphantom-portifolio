@@ -1,33 +1,34 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
-import { ThemeSwitcher } from "./ThemeSwitcher";
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from '@tanstack/react-router';
+import { Menu, X } from 'lucide-react';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 const links = [
-  { href: "#home", label: "Home" },
-  { href: "#sobre", label: "Sobre" },
-  { href: "#skills", label: "Skills" },
-  { href: "#projetos", label: "Projetos" },
-  { href: "#visao", label: "Visão" },
-  { href: "#contato", label: "Contato" },
+  { href: '#home', label: 'Home' },
+  { href: '#sobre', label: 'Sobre' },
+  { href: '#skills', label: 'Skills' },
+  { href: '#projetos', label: 'Projetos' },
+  { href: '#visao', label: 'Visão' },
+  { href: '#contato', label: 'Contato' },
 ];
 
-export function Navbar() {
+export function Navbar({ caseStudy = false }: { caseStudy?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const sectionHref = (href: string) => (caseStudy ? `/${href}` : href);
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 20);
     on();
-    window.addEventListener("scroll", on);
-    return () => window.removeEventListener("scroll", on);
+    window.addEventListener('scroll', on);
+    return () => window.removeEventListener('scroll', on);
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    document.body.style.overflow = open ? 'hidden' : '';
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [open]);
 
@@ -36,9 +37,9 @@ export function Navbar() {
       <motion.header
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-          scrolled ? "backdrop-blur-xl bg-background/60 border-b border-border" : "bg-transparent"
+          scrolled ? 'backdrop-blur-xl bg-background/60 border-b border-border' : 'bg-transparent'
         }`}
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-10 h-16 flex items-center justify-between">
@@ -60,7 +61,7 @@ export function Navbar() {
             {links.map((l) => (
               <a
                 key={l.href}
-                href={l.href}
+                href={sectionHref(l.href)}
                 data-cursor="hover"
                 className="px-4 py-2 text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors relative group"
               >
@@ -74,7 +75,7 @@ export function Navbar() {
               <ThemeSwitcher />
             </div>
             <a
-              href="#contato"
+              href={sectionHref('#contato')}
               data-cursor="hover"
               className="hidden md:inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest font-bold bg-primary text-primary-foreground rounded-full hover:glow-neon transition-shadow"
             >
@@ -94,9 +95,9 @@ export function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ clipPath: "circle(0% at 95% 5%)" }}
-            animate={{ clipPath: "circle(150% at 95% 5%)" }}
-            exit={{ clipPath: "circle(0% at 95% 5%)" }}
+            initial={{ clipPath: 'circle(0% at 95% 5%)' }}
+            animate={{ clipPath: 'circle(150% at 95% 5%)' }}
+            exit={{ clipPath: 'circle(0% at 95% 5%)' }}
             transition={{ duration: 0.6, ease: [0.83, 0, 0.17, 1] }}
             className="fixed inset-0 z-[60] bg-background md:hidden flex flex-col"
           >
@@ -113,11 +114,11 @@ export function Navbar() {
                 <X className="size-5" />
               </button>
             </div>
-            <nav className="relative flex flex-col flex-1 px-6 py-10 gap-1 overflow-y-auto">
+            <nav className="relative flex flex-col flex-1 gap-1 overflow-y-auto scrollbar-none px-6 py-10">
               {links.map((l, i) => (
                 <motion.a
                   key={l.href}
-                  href={l.href}
+                  href={sectionHref(l.href)}
                   onClick={() => setOpen(false)}
                   initial={{ x: 60, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -128,7 +129,7 @@ export function Navbar() {
                     {l.label.toUpperCase()}
                   </span>
                   <span className="text-[10px] uppercase tracking-widest text-muted-foreground tabular-nums">
-                    /{String(i + 1).padStart(2, "0")}
+                    /{String(i + 1).padStart(2, '0')}
                   </span>
                 </motion.a>
               ))}
@@ -141,7 +142,7 @@ export function Navbar() {
                 <ThemeSwitcher />
               </div>
               <a
-                href="#contato"
+                href={sectionHref('#contato')}
                 onClick={() => setOpen(false)}
                 className="inline-flex w-full justify-center items-center px-6 py-4 bg-primary text-primary-foreground rounded-full font-bold uppercase tracking-widest text-sm hover:glow-neon"
               >

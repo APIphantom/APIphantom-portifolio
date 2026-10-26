@@ -1,24 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Pencil,
-  Eye,
-  Copy,
-  Archive,
-  Trash2,
-  ExternalLink,
-} from "lucide-react";
-import { useProjects, CATEGORIES, type Project, type ProjectStatus } from "@/lib/projects-store";
-import { ProjectEditor } from "@/components/admin/ProjectEditor";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
-import { ProjectMedia } from "@/components/ProjectMedia";
+import { useState, useMemo, useEffect } from 'react';
+import { createFileRoute, Outlet, useRouterState } from '@tanstack/react-router';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Search, MoreHorizontal, Pencil, Eye, Copy, Archive, Trash2 } from 'lucide-react';
+import { useProjects, CATEGORIES, type Project, type ProjectStatus } from '@/lib/projects-store';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ProjectMedia } from '@/components/ProjectMedia';
 
-export const Route = createFileRoute("/admin/projetos")({
+export const Route = createFileRoute('/admin/projetos')({
   validateSearch: (s: Record<string, unknown>) => ({ new: s.new ? 1 : undefined }),
   component: ProjetosPage,
 });
@@ -26,20 +14,22 @@ export const Route = createFileRoute("/admin/projetos")({
 function ProjetosPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { projects, addProject, updateProject, removeProject, duplicateProject, loaded } =
-    useProjects();
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"all" | ProjectStatus>("all");
-  const [category, setCategory] = useState<"all" | string>("all");
-  const [sort, setSort] = useState<"updated" | "title">("updated");
-  const [editing, setEditing] = useState<Project | null>(null);
-  const [creating, setCreating] = useState(false);
+  const isEditorRoute = useRouterState({
+    select: (state) =>
+      state.matches.some((match) =>
+        ['/admin/projetos/$id/editar', '/admin/projetos/novo'].includes(match.routeId),
+      ),
+  });
+  const { projects, updateProject, removeProject, duplicateProject, loaded } = useProjects();
+  const [q, setQ] = useState('');
+  const [status, setStatus] = useState<'all' | ProjectStatus>('all');
+  const [category, setCategory] = useState<'all' | string>('all');
+  const [sort, setSort] = useState<'updated' | 'title'>('updated');
   const [menuFor, setMenuFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (search.new) {
-      setCreating(true);
-      navigate({ search: {} as never, replace: true });
+      navigate({ to: '/admin/projetos/novo', search: {} as never, replace: true });
     }
   }, [search.new, navigate]);
 
@@ -49,17 +39,19 @@ function ProjetosPage() {
       list = list.filter(
         (p) =>
           p.title.toLowerCase().includes(q.toLowerCase()) ||
-          p.tech.join(" ").toLowerCase().includes(q.toLowerCase()),
+          p.tech.join(' ').toLowerCase().includes(q.toLowerCase()),
       );
-    if (status !== "all") list = list.filter((p) => (p.publication?.status ?? "draft") === status);
-    if (category !== "all") list = list.filter((p) => p.category === category);
+    if (status !== 'all') list = list.filter((p) => (p.publication?.status ?? 'draft') === status);
+    if (category !== 'all') list = list.filter((p) => p.category === category);
     list = [...list].sort((a, b) =>
-      sort === "title"
+      sort === 'title'
         ? a.title.localeCompare(b.title)
-        : (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""),
+        : (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''),
     );
     return list;
   }, [projects, q, status, category, sort]);
+
+  if (isEditorRoute) return <Outlet />;
 
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 space-y-8">
@@ -74,7 +66,7 @@ function ProjetosPage() {
           </p>
         </div>
         <button
-          onClick={() => setCreating(true)}
+          onClick={() => navigate({ to: '/admin/projetos/novo', search: {} as never })}
           data-cursor="hover"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:glow-neon transition-shadow"
         >
@@ -96,17 +88,17 @@ function ProjetosPage() {
           value={status}
           onChange={(v) => setStatus(v as never)}
           options={[
-            { value: "all", label: "Todos status" },
-            { value: "published", label: "Publicado" },
-            { value: "draft", label: "Rascunho" },
-            { value: "archived", label: "Arquivado" },
+            { value: 'all', label: 'Todos status' },
+            { value: 'published', label: 'Publicado' },
+            { value: 'draft', label: 'Rascunho' },
+            { value: 'archived', label: 'Arquivado' },
           ]}
         />
         <Select
           value={category}
           onChange={setCategory}
           options={[
-            { value: "all", label: "Todas categorias" },
+            { value: 'all', label: 'Todas categorias' },
             ...CATEGORIES.map((c) => ({ value: c.value, label: c.label })),
           ]}
         />
@@ -114,8 +106,8 @@ function ProjetosPage() {
           value={sort}
           onChange={(v) => setSort(v as never)}
           options={[
-            { value: "updated", label: "Atualizado" },
-            { value: "title", label: "Título" },
+            { value: 'updated', label: 'Atualizado' },
+            { value: 'title', label: 'Título' },
           ]}
         />
       </div>
@@ -146,7 +138,13 @@ function ProjetosPage() {
               </div>
               <div className="min-w-0">
                 <button
-                  onClick={() => setEditing(p)}
+                  onClick={() =>
+                    navigate({
+                      to: '/admin/projetos/$id/editar',
+                      params: { id: p.id },
+                      search: {} as never,
+                    })
+                  }
                   className="font-bold truncate hover:text-primary text-left block w-full"
                 >
                   {p.title}
@@ -154,7 +152,7 @@ function ProjetosPage() {
                 <div className="text-xs text-muted-foreground truncate">/{p.slug}</div>
               </div>
               <div className="hidden md:block">
-                <StatusPill status={p.publication?.status ?? "draft"} />
+                <StatusPill status={p.publication?.status ?? 'draft'} />
               </div>
               <div className="hidden md:flex flex-wrap gap-1 min-w-0">
                 {p.tech.slice(0, 3).map((t) => (
@@ -170,7 +168,7 @@ function ProjetosPage() {
                 )}
               </div>
               <div className="hidden md:block text-xs text-muted-foreground">
-                {p.updatedAt ? new Date(p.updatedAt).toLocaleDateString("pt-BR") : "—"}
+                {p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('pt-BR') : '—'}
               </div>
               <div className="relative">
                 <button
@@ -192,17 +190,21 @@ function ProjetosPage() {
                       >
                         <MenuItem
                           icon={Pencil}
-                          label="Editar"
+                          label="Editar projeto"
                           onClick={() => {
-                            setEditing(p);
                             setMenuFor(null);
+                            navigate({
+                              to: '/admin/projetos/$id/editar',
+                              params: { id: p.id },
+                              search: {} as never,
+                            });
                           }}
                         />
                         <MenuItem
                           icon={Eye}
                           label="Visualizar"
                           onClick={() => {
-                            window.open(`/projeto/${p.slug}`, "_blank");
+                            window.open(`/projetos/${p.slug}`, '_blank');
                             setMenuFor(null);
                           }}
                         />
@@ -220,8 +222,8 @@ function ProjetosPage() {
                           onClick={() => {
                             updateProject(p.id, {
                               publication: {
-                                ...(p.publication ?? { visibility: "public" as const }),
-                                status: "archived",
+                                ...(p.publication ?? { visibility: 'public' as const }),
+                                status: 'archived',
                               },
                             });
                             setMenuFor(null);
@@ -233,7 +235,7 @@ function ProjetosPage() {
                           label="Excluir"
                           destructive
                           onClick={() => {
-                            if (confirm("Excluir definitivamente?")) removeProject(p.id);
+                            if (confirm('Excluir definitivamente?')) removeProject(p.id);
                             setMenuFor(null);
                           }}
                         />
@@ -267,28 +269,6 @@ function ProjetosPage() {
           )}
         </div>
       </div>
-
-      <ProjectEditor
-        open={!!editing || creating}
-        project={editing}
-        onClose={() => {
-          setEditing(null);
-          setCreating(false);
-        }}
-        onSave={async (data) => {
-          try {
-            if (editing) await updateProject(editing.id, data);
-            else await addProject(data);
-
-            toast.success("Projeto salvo com sucesso.");
-            setEditing(null);
-            setCreating(false);
-          } catch (error) {
-            const message = error instanceof Error ? error.message : "Falha ao salvar projeto.";
-            toast.error(message);
-          }
-        }}
-      />
     </div>
   );
 }
@@ -308,7 +288,7 @@ function MenuItem({
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-sm transition-colors ${
-        destructive ? "text-destructive hover:bg-destructive/10" : "hover:bg-muted/50"
+        destructive ? 'text-destructive hover:bg-destructive/10' : 'hover:bg-muted/50'
       }`}
     >
       <Icon className="size-3.5" />
@@ -343,14 +323,14 @@ function Select({
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
-    published: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    draft: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    archived: "bg-muted text-muted-foreground border-border",
+    published: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    draft: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    archived: 'bg-muted text-muted-foreground border-border',
   };
   const label: Record<string, string> = {
-    published: "Publicado",
-    draft: "Rascunho",
-    archived: "Arquivado",
+    published: 'Publicado',
+    draft: 'Rascunho',
+    archived: 'Arquivado',
   };
   return (
     <span

@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
-import { Lightbulb, Rocket, Sparkles } from "lucide-react";
-import type { DetailItem } from "./types";
+import { motion } from 'framer-motion';
+import { Lightbulb, Rocket, Sparkles } from 'lucide-react';
+import type { DetailItem } from './types';
 
 type Props = {
   items: DetailItem[];
@@ -16,12 +16,16 @@ export function LessonsSection({ items }: Props) {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true, margin: '-80px' }}
         className="mx-auto max-w-7xl rounded-3xl border border-border/80 bg-gradient-to-b from-card/60 to-background/45 backdrop-blur-xl p-6 md:p-8"
       >
         <div className="grid items-center gap-3 mb-8">
-          <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">// 11 - Aprendizados</span>
-          <p className="display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6"><span className="text-primary text-glow">Aprendizados</span> do projeto.</p>
+          <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">
+            // 11 - Aprendizados
+          </span>
+          <p className="display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6">
+            <span className="text-primary text-glow">Aprendizados</span> do projeto.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useInView, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from 'react';
+import { useInView, useReducedMotion } from 'framer-motion';
 
 type Props = {
   to: number;
@@ -7,9 +7,9 @@ type Props = {
   suffix?: string;
 };
 
-export function AnimatedCounter({ to, prefix = "", suffix = "" }: Props) {
+export function AnimatedCounter({ to, prefix = '', suffix = '' }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const inView = useInView(ref, { once: true, margin: '-40px' });
   const reducedMotion = useReducedMotion();
   const [value, setValue] = useState(0);
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 export function CustomCursor() {
   const dot = useRef<HTMLDivElement>(null);
@@ -8,11 +8,11 @@ export function CustomCursor() {
   // Removemos o estado 'hover' do React, pois ele causa re-render desnecessário
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const can = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (typeof window === 'undefined') return;
+    const can = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!can) return;
     setEnabled(true);
-    document.body.classList.add("has-custom-cursor");
+    document.body.classList.add('has-custom-cursor');
 
     let mx = 0,
       my = 0,
@@ -33,24 +33,24 @@ export function CustomCursor() {
       const isInteractive = !!target?.closest(
         'a, button, [data-cursor], input, textarea, select, label',
       );
-      const cursorTarget = target?.closest("[data-cursor]") as HTMLElement | null;
-      const cursorKind = cursorTarget?.dataset.cursor || (isInteractive ? "open" : "");
+      const cursorTarget = target?.closest('[data-cursor]') as HTMLElement | null;
+      const cursorKind = cursorTarget?.dataset.cursor || (isInteractive ? 'open' : '');
 
       if (ring.current) {
-        ring.current.classList.toggle("is-hovering", isInteractive);
+        ring.current.classList.toggle('is-hovering', isInteractive);
       }
 
       if (label.current) {
         const text =
-          cursorKind === "view"
-            ? "VIEW"
-            : cursorKind === "details"
-              ? "DETAILS"
-              : cursorKind === "open" || cursorKind === "hover"
-                ? "OPEN"
-                : "";
+          cursorKind === 'view'
+            ? 'VIEW'
+            : cursorKind === 'details'
+              ? 'DETAILS'
+              : cursorKind === 'open' || cursorKind === 'hover'
+                ? 'OPEN'
+                : '';
         label.current.textContent = text;
-        label.current.style.opacity = text ? "1" : "0";
+        label.current.style.opacity = text ? '1' : '0';
       }
     };
 
@@ -64,11 +64,11 @@ export function CustomCursor() {
       raf = requestAnimationFrame(loop);
     };
     loop();
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener('mousemove', onMove);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("mousemove", onMove);
-      document.body.classList.remove("has-custom-cursor");
+      window.removeEventListener('mousemove', onMove);
+      document.body.classList.remove('has-custom-cursor');
     };
   }, []);
 
@@ -80,14 +80,14 @@ export function CustomCursor() {
         ref={dot}
         aria-hidden
         className="pointer-events-none fixed top-0 left-0 z-[10000] size-2 rounded-full bg-primary mix-blend-difference"
-        style={{ willChange: "transform" }}
+        style={{ willChange: 'transform' }}
       />
       <div
         ref={ring}
         aria-hidden
         // Adicionei .is-hovering no CSS para substituir o estado do React
         className="pointer-events-none fixed top-0 left-0 z-[10000] size-9 rounded-full border border-primary transition-[width,height,border-color,opacity] duration-200 [.is-hovering_&]:scale-150 [.is-hovering_&]:bg-primary/10"
-        style={{ willChange: "transform" }}
+        style={{ willChange: 'transform' }}
       >
         <span
           ref={label}

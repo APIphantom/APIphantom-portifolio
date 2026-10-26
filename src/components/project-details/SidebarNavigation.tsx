@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import type { SectionNavItem, SectionId } from "./types";
+import { useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import type { SectionNavItem, SectionId } from './types';
 
 type Props = {
   items: SectionNavItem[];
 };
 
 export function SidebarNavigation({ items }: Props) {
-  const [active, setActive] = useState<SectionId>("overview");
+  const [active, setActive] = useState<SectionId>('overview');
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function SidebarNavigation({ items }: Props) {
           setActive(top.target.id as SectionId);
         }
       },
-      { rootMargin: "-18% 0px -62% 0px", threshold: [0.2, 0.4, 0.6] },
+      { rootMargin: '-18% 0px -62% 0px', threshold: [0.2, 0.4, 0.6] },
     );
 
     items.forEach((item) => {
@@ -34,7 +34,9 @@ export function SidebarNavigation({ items }: Props) {
   return (
     <>
       <aside className="hidden xl:flex fixed left-5 top-1/2 -translate-y-1/2 z-40 flex-col gap-2 w-52 rounded-2xl border border-border/70 bg-card/45 backdrop-blur-xl p-3">
-        <div className="text-[10px] uppercase tracking-[0.32em] text-primary px-2 pb-1">Navegacao</div>
+        <div className="text-[10px] uppercase tracking-[0.32em] text-primary px-2 pb-1">
+          Navegacao
+        </div>
         {items.map((item) => {
           const isActive = active === item.id;
           return (
@@ -44,13 +46,15 @@ export function SidebarNavigation({ items }: Props) {
               data-cursor="open"
               className={`relative flex items-center gap-2 rounded-lg border px-2.5 py-2 text-[11px] uppercase tracking-[0.2em] transition-all ${
                 isActive
-                  ? "border-primary/40 text-primary bg-primary/10"
-                  : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
+                  ? 'border-primary/40 text-primary bg-primary/10'
+                  : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
               }`}
             >
               <span className="font-mono text-[10px]">{item.n}</span>
               <span>{item.label}</span>
-              <item.icon className={`ml-auto size-3.5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+              <item.icon
+                className={`ml-auto size-3.5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+              />
               {isActive && (
                 <motion.span
                   layoutId="activeDot"
@@ -73,8 +77,8 @@ export function SidebarNavigation({ items }: Props) {
                 href={`#${item.id}`}
                 className={`px-3 py-1.5 rounded-full border text-[10px] uppercase tracking-[0.2em] whitespace-nowrap transition-colors ${
                   isActive
-                    ? "border-primary/40 bg-primary/10 text-primary"
-                    : "border-border text-muted-foreground"
+                    ? 'border-primary/40 bg-primary/10 text-primary'
+                    : 'border-border text-muted-foreground'
                 }`}
               >
                 {item.n} {item.label}

@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
+import { createFileRoute } from '@tanstack/react-router';
+import { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import {
   Plus,
   Trash2,
@@ -14,35 +14,35 @@ import {
   Sparkles,
   RotateCcw,
   Pencil,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   useStoryline,
   STORYLINE_ICONS,
   STORYLINE_ICON_KEYS,
   type StorylineItem,
-} from "@/lib/storyline-store";
+} from '@/lib/storyline-store';
 
-export const Route = createFileRoute("/admin/storyline")({
+export const Route = createFileRoute('/admin/storyline')({
   head: () => ({
-    meta: [{ title: "Storyline // Workspace" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: 'Storyline // Workspace' }, { name: 'robots', content: 'noindex' }],
   }),
   component: AdminStoryline,
 });
 
-type Draft = Omit<StorylineItem, "id" | "order">;
+type Draft = Omit<StorylineItem, 'id' | 'order'>;
 
 const EMPTY_DRAFT: Draft = {
-  year: "",
-  title: "",
-  subtitle: "",
-  description: "",
-  icon: "sparkles",
-  badge: "",
+  year: '',
+  title: '',
+  subtitle: '',
+  description: '',
+  icon: 'sparkles',
+  badge: '',
   active: true,
 };
 
 function AdminStoryline() {
-  const { items, add, update, remove, move, reset } = useStoryline();
+  const { items, add, update, remove, move, reset } = useStoryline({ includeInactive: true });
   const sorted = useMemo(() => [...items].sort((a, b) => a.order - b.order), [items]);
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -59,10 +59,10 @@ function AdminStoryline() {
     setDraft({
       year: item.year,
       title: item.title,
-      subtitle: item.subtitle ?? "",
+      subtitle: item.subtitle ?? '',
       description: item.description,
       icon: item.icon,
-      badge: item.badge ?? "",
+      badge: item.badge ?? '',
       active: item.active,
     });
     setEditingId(item.id);
@@ -76,15 +76,15 @@ function AdminStoryline() {
 
   const save = () => {
     if (!draft.title.trim() || !draft.year.trim() || !draft.description.trim()) {
-      toast.error("Preencha ano, título e descrição.");
+      toast.error('Preencha ano, título e descrição.');
       return;
     }
     if (editingId) {
       update(editingId, draft);
-      toast.success("Marco atualizado.");
+      toast.success('Marco atualizado.');
     } else {
       add(draft);
-      toast.success("Marco criado.");
+      toast.success('Marco criado.');
     }
     close();
   };
@@ -92,13 +92,13 @@ function AdminStoryline() {
   const handleRemove = (item: StorylineItem) => {
     if (!confirm(`Remover "${item.title}"?`)) return;
     remove(item.id);
-    toast.success("Marco removido.");
+    toast.success('Marco removido.');
   };
 
   const handleReset = () => {
-    if (!confirm("Restaurar Storyline padrão? Suas alterações serão perdidas.")) return;
+    if (!confirm('Restaurar Storyline padrão? Suas alterações serão perdidas.')) return;
     reset();
-    toast.success("Storyline restaurada.");
+    toast.success('Storyline restaurada.');
   };
 
   return (
@@ -143,8 +143,8 @@ function AdminStoryline() {
               animate={{ opacity: 1, y: 0 }}
               className={`group flex items-center gap-4 p-4 rounded-xl border transition-colors ${
                 item.active
-                  ? "border-border bg-card/40 hover:border-primary/40"
-                  : "border-dashed border-border/60 bg-card/20 opacity-60"
+                  ? 'border-border bg-card/40 hover:border-primary/40'
+                  : 'border-dashed border-border/60 bg-card/20 opacity-60'
               }`}
             >
               <div className="flex flex-col gap-1">
@@ -194,7 +194,7 @@ function AdminStoryline() {
                 <button
                   onClick={() => update(item.id, { active: !item.active })}
                   data-cursor="hover"
-                  aria-label={item.active ? "Desativar" : "Ativar"}
+                  aria-label={item.active ? 'Desativar' : 'Ativar'}
                   className="size-8 rounded-md border border-border hover:border-primary hover:text-primary flex items-center justify-center"
                 >
                   {item.active ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
@@ -240,13 +240,13 @@ function AdminStoryline() {
               initial={{ scale: 0.96, y: 16, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.96, y: 16, opacity: 0 }}
-              transition={{ type: "spring", damping: 24, stiffness: 220 }}
-              className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card/90 backdrop-blur-2xl"
+              transition={{ type: 'spring', damping: 24, stiffness: 220 }}
+              className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-none rounded-2xl border border-border bg-card/90 backdrop-blur-2xl"
             >
               <div className="sticky top-0 z-10 flex items-center justify-between p-5 border-b border-border bg-card/95 backdrop-blur">
                 <div>
                   <div className="text-[10px] uppercase tracking-[0.3em] text-primary">
-                    {editingId ? "Editar marco" : "Novo marco"}
+                    {editingId ? 'Editar marco' : 'Novo marco'}
                   </div>
                   <div className="font-black text-xl tracking-tight mt-0.5">Storyline</div>
                 </div>
@@ -271,7 +271,7 @@ function AdminStoryline() {
                   </Field>
                   <Field label="Badge">
                     <input
-                      value={draft.badge ?? ""}
+                      value={draft.badge ?? ''}
                       onChange={(e) => setDraft({ ...draft, badge: e.target.value })}
                       placeholder="Framework"
                       className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm focus:border-primary outline-none"
@@ -290,7 +290,7 @@ function AdminStoryline() {
 
                 <Field label="Subtítulo">
                   <input
-                    value={draft.subtitle ?? ""}
+                    value={draft.subtitle ?? ''}
                     onChange={(e) => setDraft({ ...draft, subtitle: e.target.value })}
                     placeholder="Componentização"
                     className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm focus:border-primary outline-none"
@@ -320,8 +320,8 @@ function AdminStoryline() {
                           aria-label={key}
                           className={`aspect-square rounded-lg border flex items-center justify-center transition-all ${
                             selected
-                              ? "border-primary text-primary bg-primary/10 glow-neon"
-                              : "border-border text-muted-foreground hover:border-primary/60 hover:text-foreground"
+                              ? 'border-primary text-primary bg-primary/10 glow-neon'
+                              : 'border-border text-muted-foreground hover:border-primary/60 hover:text-foreground'
                           }`}
                         >
                           <I className="size-4" />
@@ -353,7 +353,7 @@ function AdminStoryline() {
                   onClick={save}
                   className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold uppercase tracking-widest text-xs hover:glow-neon transition-shadow"
                 >
-                  <Save className="size-3.5" /> {editingId ? "Salvar" : "Adicionar"}
+                  <Save className="size-3.5" /> {editingId ? 'Salvar' : 'Adicionar'}
                 </button>
               </div>
             </motion.div>

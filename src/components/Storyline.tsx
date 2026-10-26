@@ -1,7 +1,7 @@
-import { useRef, useMemo, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
-import { Sparkles } from "lucide-react";
-import { useStoryline, STORYLINE_ICONS, type StorylineItem } from "@/lib/storyline-store";
+import { useRef, useMemo, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
+import { useStoryline, STORYLINE_ICONS, type StorylineItem } from '@/lib/storyline-store';
 
 interface Props {
   items?: StorylineItem[];
@@ -29,18 +29,18 @@ export function Storyline({ items: itemsProp }: Props) {
     mounted
       ? {
           target: containerRef,
-          offset: ["start start", "end end"],
+          offset: ['start start', 'end end'],
         }
       : undefined,
   );
 
-  const xRaw = useTransform(scrollYProgress, [0, 1], ["2%", "-82%"]);
+  const xRaw = useTransform(scrollYProgress, [0, 1], ['2%', '-82%']);
   const x = useSpring(xRaw, { stiffness: 80, damping: 22, mass: 0.4 });
 
   const progressScale = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
   const progressPct = useTransform(scrollYProgress, (v) => `${Math.round(v * 100)}%`);
 
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
     if (sorted.length === 0) return;
     const idx = Math.min(sorted.length - 1, Math.max(0, Math.round(v * (sorted.length - 1))));
     if (idx !== activeIdx) setActiveIdx(idx);
@@ -78,7 +78,7 @@ export function Storyline({ items: itemsProp }: Props) {
               </motion.span>
               <div className="relative h-[2px] flex-1 bg-border overflow-hidden rounded-full">
                 <motion.div
-                  style={{ scaleX: progressScale, transformOrigin: "left" }}
+                  style={{ scaleX: progressScale, transformOrigin: 'left' }}
                   className="absolute inset-0 bg-primary glow-neon"
                 />
               </div>
@@ -91,7 +91,7 @@ export function Storyline({ items: itemsProp }: Props) {
                 <motion.span
                   animate={{
                     scale: i === activeIdx ? 1.4 : 1,
-                    backgroundColor: i <= activeIdx ? "var(--primary)" : "var(--border)",
+                    backgroundColor: i <= activeIdx ? 'var(--primary)' : 'var(--border)',
                   }}
                   transition={{ duration: 0.4 }}
                   className="size-2 rounded-full"
@@ -101,7 +101,7 @@ export function Storyline({ items: itemsProp }: Props) {
                     <motion.div
                       animate={{ scaleX: i < activeIdx ? 1 : 0 }}
                       transition={{ duration: 0.5 }}
-                      style={{ transformOrigin: "left" }}
+                      style={{ transformOrigin: 'left' }}
                       className="absolute inset-0 bg-primary/60"
                     />
                   </div>
@@ -126,14 +126,14 @@ export function Storyline({ items: itemsProp }: Props) {
                   animate={{
                     scale: isActive ? 1.01 : 0.94,
                     opacity: isActive ? 1 : 0.45,
-                    filter: isActive ? "blur(0px)" : "blur(2px)",
+                    filter: isActive ? 'blur(0px)' : 'blur(2px)',
                   }}
                   whileHover={{ scale: isActive ? 1.02 : 0.97 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   className="relative shrink-0 w-[84vw] sm:w-[60vw] md:w-[44vw] lg:w-[30vw] xl:w-[26vw] 2xl:w-[22vw] h-[360px] sm:h-[390px] md:h-[420px] rounded-2xl border border-border bg-card p-6 md:p-7 flex flex-col overflow-hidden group"
                   style={{
                     boxShadow: isActive
-                      ? "0 0 0 1px var(--primary), 0 0 60px rgba(var(--glow-color), 0.18)"
+                      ? '0 0 0 1px var(--primary), 0 0 60px rgba(var(--glow-color), 0.18)'
                       : undefined,
                   }}
                   data-cursor="hover"
@@ -147,7 +147,7 @@ export function Storyline({ items: itemsProp }: Props) {
                   <div className="relative flex items-start justify-between shrink-0">
                     <div>
                       <div className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">
-                        // {String(item.order).padStart(2, "0")}
+                        // {String(item.order).padStart(2, '0')}
                       </div>
                       <div className="display text-4xl md:text-5xl mt-2 text-primary">
                         {item.year}
@@ -158,7 +158,7 @@ export function Storyline({ items: itemsProp }: Props) {
                     </div>
                   </div>
 
-                  <div className="relative mt-4 flex-1 min-h-0 overflow-y-auto pr-1">
+                  <div className="relative mt-4 flex-1 min-h-0 overflow-y-auto scrollbar-none pr-1">
                     {item.badge && (
                       <span className="inline-block text-[10px] uppercase tracking-[0.3em] px-2 py-1 border border-primary/40 text-primary rounded-full mb-4">
                         {item.badge}
@@ -176,7 +176,7 @@ export function Storyline({ items: itemsProp }: Props) {
                   <motion.div
                     aria-hidden
                     animate={{ scaleX: isActive ? 1 : 0.2 }}
-                    style={{ transformOrigin: "left" }}
+                    style={{ transformOrigin: 'left' }}
                     className="absolute bottom-0 left-0 right-0 h-px bg-primary"
                   />
                 </motion.article>
@@ -196,8 +196,8 @@ export function Storyline({ items: itemsProp }: Props) {
         <div className="px-6 lg:px-10 pb-6 mx-auto max-w-7xl w-full flex items-center justify-between text-[10px] uppercase tracking-[0.4em] text-muted-foreground">
           <span>Scroll ↓ para avançar</span>
           <span className="font-mono">
-            {String(Math.min(activeIdx + 1, Math.max(sorted.length, 1))).padStart(2, "0")} /{" "}
-            {String(Math.max(sorted.length, 1)).padStart(2, "0")}
+            {String(Math.min(activeIdx + 1, Math.max(sorted.length, 1))).padStart(2, '0')} /{' '}
+            {String(Math.max(sorted.length, 1)).padStart(2, '0')}
           </span>
         </div>
       </div>

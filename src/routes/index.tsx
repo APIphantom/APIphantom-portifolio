@@ -1,68 +1,68 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Navbar } from "@/components/Navbar";
-import { Hero } from "@/components/Hero";
-import { About } from "@/components/About";
-import { Storyline } from "@/components/Storyline";
-import { Skills } from "@/components/Skills";
-import { Manifesto } from "@/components/Manifesto";
-import { Projects } from "@/components/Projects";
-import { Vision } from "@/components/Vision";
-import { Contact } from "@/components/Contact";
-import { Footer } from "@/components/Footer";
-import { Link } from "@tanstack/react-router";
-import { Settings } from "lucide-react";
-import { useProjects } from "@/lib/projects-store";
+import { createFileRoute } from '@tanstack/react-router';
+import { Navbar } from '@/components/Navbar';
+import { Hero } from '@/components/Hero';
+import { About } from '@/components/About';
+import { Storyline } from '@/components/Storyline';
+import { Skills } from '@/components/Skills';
+import { Manifesto } from '@/components/Manifesto';
+import { Projects } from '@/components/Projects';
+import { Vision } from '@/components/Vision';
+import { Contact } from '@/components/Contact';
+import { Footer } from '@/components/Footer';
+import { Link } from '@tanstack/react-router';
+import { Settings } from 'lucide-react';
+import { useProjects } from '@/lib/projects-store';
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
-      { title: "Adriano Oliveira — Desenvolvedor Front-End Júnior" },
+      { title: 'Adriano Oliveira — Desenvolvedor Front-End Júnior' },
       {
-        name: "description",
+        name: 'description',
         content:
-          "Portfólio de Adriano Oliveira, Desenvolvedor Front-End Júnior. React, Next.js, TypeScript e Tailwind. Interfaces modernas, responsivas e acessíveis.",
+          'Portfólio de Adriano Oliveira, Desenvolvedor Front-End Júnior. React, Next.js, TypeScript e Tailwind. Interfaces modernas, responsivas e acessíveis.',
       },
       {
-        name: "keywords",
+        name: 'keywords',
         content:
-          "front-end júnior, desenvolvedor react, next.js, typescript, tailwind, portfólio dev, Adriano Oliveira",
+          'front-end júnior, desenvolvedor react, next.js, typescript, tailwind, portfólio dev, Adriano Oliveira',
       },
-      { property: "og:title", content: "Adriano Oliveira — Front-End Júnior" },
+      { property: 'og:title', content: 'Adriano Oliveira — Front-End Júnior' },
       {
-        property: "og:description",
+        property: 'og:description',
         content:
-          "Transformo ideias em interfaces modernas, responsivas e acessíveis. Em busca da minha primeira oportunidade em Front-End.",
+          'Transformo ideias em interfaces modernas, responsivas e acessíveis. Em busca da minha primeira oportunidade em Front-End.',
       },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Adriano Oliveira — Front-End Júnior" },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: '/' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'Adriano Oliveira — Front-End Júnior' },
       {
-        name: "twitter:description",
+        name: 'twitter:description',
         content:
-          "React · Next.js · TypeScript · Tailwind — Front-End Júnior em busca de oportunidade.",
+          'React · Next.js · TypeScript · Tailwind — Front-End Júnior em busca de oportunidade.',
       },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: 'canonical', href: '/' }],
     scripts: [
       {
-        type: "application/ld+json",
+        type: 'application/ld+json',
         children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Person",
-          name: "Adriano Oliveira",
-          jobTitle: "Desenvolvedor Front-End Júnior",
-          url: "/",
+          '@context': 'https://schema.org',
+          '@type': 'Person',
+          name: 'Adriano Oliveira',
+          jobTitle: 'Desenvolvedor Front-End Júnior',
+          url: '/',
           knowsAbout: [
-            "React",
-            "Next.js",
-            "TypeScript",
-            "Tailwind CSS",
-            "JavaScript",
-            "HTML",
-            "CSS",
+            'React',
+            'Next.js',
+            'TypeScript',
+            'Tailwind CSS',
+            'JavaScript',
+            'HTML',
+            'CSS',
           ],
-          sameAs: ["https://github.com", "https://linkedin.com"],
+          sameAs: ['https://github.com', 'https://linkedin.com'],
         }),
       },
     ],
@@ -71,7 +71,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { projects } = useProjects();
+  const { projects } = useProjects({ publishedOnly: true });
 
   return (
     <div className="min-h-screen bg-background text-foreground">

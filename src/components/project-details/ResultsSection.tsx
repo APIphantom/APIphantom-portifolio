@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
-import { AnimatedCounter } from "./AnimatedCounter";
-import type { MetricItem } from "./types";
+import { motion } from 'framer-motion';
+import { AnimatedCounter } from './AnimatedCounter';
+import type { MetricItem } from './types';
 
 type Props = {
   items: MetricItem[];
@@ -14,12 +14,17 @@ export function ResultsSection({ items }: Props) {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true, margin: '-80px' }}
         className="mx-auto max-w-7xl rounded-3xl border border-border/80 bg-gradient-to-b from-card/60 to-background/45 backdrop-blur-xl p-6 md:p-8"
       >
         <div className="grid items-center gap-3 mb-8">
-          <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">// 09 - Resultados</span>
-          <p className="flex-1 display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6"><span className="text-primary text-glow">Resultados</span> e <span className="text-primary text-glow">impacto</span> do projeto.</p>
+          <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">
+            // 09 - Resultados
+          </span>
+          <p className="flex-1 display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6">
+            <span className="text-primary text-glow">Resultados</span> e{' '}
+            <span className="text-primary text-glow">impacto</span> do projeto.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -40,7 +45,9 @@ export function ResultsSection({ items }: Props) {
                 )}
               </div>
               <div className="text-sm uppercase tracking-[0.2em] mt-2">{item.label}</div>
-              {item.description && <p className="text-sm text-muted-foreground mt-2">{item.description}</p>}
+              {item.description && (
+                <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
+              )}
             </motion.article>
           ))}
         </div>

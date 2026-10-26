@@ -1,5 +1,5 @@
-import { useRef, type ReactNode, type ButtonHTMLAttributes } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useRef, type ReactNode, type ButtonHTMLAttributes } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;

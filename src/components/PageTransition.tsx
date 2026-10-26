@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { Outlet, useRouterState } from "@tanstack/react-router";
+import { AnimatePresence, motion } from 'framer-motion';
+import { Outlet, useRouterState } from '@tanstack/react-router';
 
 /**
  * Wraps <Outlet /> in a crossfade keyed by pathname.

@@ -1,13 +1,27 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useSettings } from "@/lib/projects-store";
-import { toast } from "sonner";
+import { createFileRoute } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { useSettings, type Settings } from '@/lib/projects-store';
+import { toast } from 'sonner';
 
-export const Route = createFileRoute("/admin/configuracoes")({
+export const Route = createFileRoute('/admin/configuracoes')({
   component: SettingsPage,
 });
 
 function SettingsPage() {
-  const { settings, update } = useSettings();
+  const { settings, update, saving, loaded } = useSettings({ includeSecrets: true });
+  const [form, setForm] = useState<Settings>(settings);
+
+  useEffect(() => setForm(settings), [settings]);
+
+  const change = (patch: Partial<Settings>) => setForm((current) => ({ ...current, ...patch }));
+  const save = async () => {
+    try {
+      await update(form);
+      toast.success('Configurações salvas.');
+    } catch {
+      toast.error('Não foi possível salvar as configurações.');
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-6 lg:px-10 py-10 space-y-8">
@@ -21,19 +35,19 @@ function SettingsPage() {
 
       <Section title="Portfolio">
         <Grid>
-          <Input label="Nome" value={settings.name} onChange={(v) => update({ name: v })} />
-          <Input label="Cargo" value={settings.role} onChange={(v) => update({ role: v })} />
+          <Input label="Nome" value={form.name} onChange={(v) => change({ name: v })} />
+          <Input label="Cargo" value={form.role} onChange={(v) => change({ role: v })} />
         </Grid>
-        <TextArea label="Bio" value={settings.bio} onChange={(v) => update({ bio: v })} />
+        <TextArea label="Bio" value={form.bio} onChange={(v) => change({ bio: v })} />
       </Section>
 
       <Section title="Contato">
         <Grid>
-          <Input label="Email" value={settings.email} onChange={(v) => update({ email: v })} />
+          <Input label="Email" value={form.email} onChange={(v) => change({ email: v })} />
           <Input
             label="Localização"
-            value={settings.location}
-            onChange={(v) => update({ location: v })}
+            value={form.location}
+            onChange={(v) => change({ location: v })}
           />
         </Grid>
         <p className="text-xs text-muted-foreground">
@@ -46,25 +60,25 @@ function SettingsPage() {
         <Grid>
           <Input
             label="GitHub"
-            value={settings.github}
-            onChange={(v) => update({ github: v })}
+            value={form.github}
+            onChange={(v) => change({ github: v })}
             placeholder="https://github.com/..."
           />
           <Input
             label="LinkedIn"
-            value={settings.linkedin}
-            onChange={(v) => update({ linkedin: v })}
+            value={form.linkedin}
+            onChange={(v) => change({ linkedin: v })}
             placeholder="https://linkedin.com/in/..."
           />
           <Input
             label="Twitter / X"
-            value={settings.twitter}
-            onChange={(v) => update({ twitter: v })}
+            value={form.twitter}
+            onChange={(v) => change({ twitter: v })}
           />
           <Input
             label="Instagram"
-            value={settings.instagram}
-            onChange={(v) => update({ instagram: v })}
+            value={form.instagram}
+            onChange={(v) => change({ instagram: v })}
           />
         </Grid>
       </Section>
@@ -73,28 +87,32 @@ function SettingsPage() {
         <Grid>
           <Input
             label="Username"
-            value={settings.githubUsername ?? ""}
-            onChange={(v) => update({ githubUsername: v })}
+            value={form.githubUsername ?? ''}
+            onChange={(v) => change({ githubUsername: v })}
           />
           <Input
             label="Personal Access Token"
             type="password"
-            value={settings.githubToken ?? ""}
-            onChange={(v) => update({ githubToken: v })}
+            value={form.githubToken ?? ''}
+            onChange={(v) => change({ githubToken: v })}
             placeholder="ghp_..."
           />
         </Grid>
         <p className="text-xs text-muted-foreground">
-          O token é armazenado localmente neste navegador.
+          O token é armazenado nas configurações protegidas do servidor e só pode ser lido por
+          administradores.
         </p>
       </Section>
 
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-4" aria-live="polite">
+        {saving ? <span className="text-xs text-muted-foreground">Salvando…</span> : null}
         <button
-          onClick={() => toast.success("Configurações salvas")}
-          className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs uppercase tracking-widest font-bold hover:glow-neon"
+          type="button"
+          onClick={save}
+          disabled={saving || !loaded}
+          className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs uppercase tracking-widest font-bold hover:glow-neon disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Salvar
+          Salvar alterações
         </button>
       </div>
     </div>
@@ -117,7 +135,7 @@ function Input({
   value,
   onChange,
   placeholder,
-  type = "text",
+  type = 'text',
 }: {
   label: string;
   value: string;

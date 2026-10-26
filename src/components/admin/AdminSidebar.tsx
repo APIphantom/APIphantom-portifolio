@@ -1,5 +1,5 @@
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { Link, useRouterState, useNavigate } from '@tanstack/react-router';
+import { motion } from 'framer-motion';
 import {
   LayoutGrid,
   FolderKanban,
@@ -11,22 +11,22 @@ import {
   LogOut,
   ExternalLink,
   Milestone,
-} from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 const items = [
-  { to: "/admin", label: "Início", icon: LayoutGrid, exact: true },
-  { to: "/admin/projetos", label: "Projetos", icon: FolderKanban },
-  { to: "/admin/storyline", label: "Storyline", icon: Milestone },
-  { to: "/admin/midias", label: "Mídias", icon: ImageIcon },
-  { to: "/admin/curriculos", label: "Currículos", icon: FileText },
-  { to: "/admin/tecnologias", label: "Tecnologias", icon: Cpu },
-  { to: "/admin/github", label: "GitHub Import", icon: Github },
+  { to: '/admin', label: 'Início', icon: LayoutGrid, exact: true },
+  { to: '/admin/projetos', label: 'Projetos', icon: FolderKanban },
+  { to: '/admin/storyline', label: 'Storyline', icon: Milestone },
+  { to: '/admin/midias', label: 'Mídias', icon: ImageIcon },
+  { to: '/admin/curriculos', label: 'Currículos', icon: FileText },
+  { to: '/admin/tecnologias', label: 'Tecnologias', icon: Cpu },
+  { to: '/admin/github', label: 'GitHub Import', icon: Github },
 ];
 
-const footerItems = [{ to: "/admin/configuracoes", label: "Configurações", icon: SettingsIcon }];
+const footerItems = [{ to: '/admin/configuracoes', label: 'Configurações', icon: SettingsIcon }];
 
 export function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -34,14 +34,14 @@ export function AdminSidebar() {
   const queryClient = useQueryClient();
 
   const isActive = (to: string, exact?: boolean) =>
-    exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
+    exact ? pathname === to : pathname === to || pathname.startsWith(to + '/');
 
   const handleLogout = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
-    toast.success("Sessão encerrada.");
-    navigate({ to: "/auth", replace: true });
+    toast.success('Sessão encerrada.');
+    navigate({ to: '/auth', replace: true });
   };
 
   return (
@@ -60,7 +60,7 @@ export function AdminSidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto scrollbar-none px-3 py-4">
         {items.map((item) => {
           const active = isActive(item.to, item.exact);
           return (
@@ -70,15 +70,15 @@ export function AdminSidebar() {
               data-cursor="hover"
               className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all group ${
                 active
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
               }`}
             >
               {active && (
                 <motion.div
                   layoutId="sidebar-active"
                   className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r-full bg-primary"
-                  transition={{ type: "spring", damping: 24, stiffness: 320 }}
+                  transition={{ type: 'spring', damping: 24, stiffness: 320 }}
                 />
               )}
               <item.icon className="size-4 shrink-0" />
@@ -98,8 +98,8 @@ export function AdminSidebar() {
               data-cursor="hover"
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
                 active
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
               }`}
             >
               <item.icon className="size-4" />
@@ -135,13 +135,13 @@ export function AdminMobileBar() {
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card/90 backdrop-blur-xl border-t border-border/60">
       <div className="flex items-center justify-around px-2 py-2">
         {all.slice(0, 5).map((item) => {
-          const active = pathname === item.to || pathname.startsWith(item.to + "/");
+          const active = pathname === item.to || pathname.startsWith(item.to + '/');
           return (
             <Link
               key={item.to}
               to={item.to}
               className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-md text-[10px] ${
-                active ? "text-primary" : "text-muted-foreground"
+                active ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <item.icon className="size-4" />

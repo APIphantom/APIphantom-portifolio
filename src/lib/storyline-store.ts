@@ -1,6 +1,6 @@
-import { useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
 import {
   Sparkles,
   GraduationCap,
@@ -17,8 +17,13 @@ import {
   Zap,
   Star,
   type LucideIcon,
-} from "lucide-react";
-import { listStoryline, upsertStoryline, deleteStoryline } from "./portfolio.functions";
+} from 'lucide-react';
+import {
+  listStoryline,
+  listAllStoryline,
+  upsertStoryline,
+  deleteStoryline,
+} from './portfolio.functions';
 
 export interface StorylineItem {
   id: string;
@@ -31,6 +36,8 @@ export interface StorylineItem {
   order: number;
   active: boolean;
 }
+
+type StorylineInput = Omit<StorylineItem, 'id'> & { id?: string };
 
 export const STORYLINE_ICONS: Record<string, LucideIcon> = {
   sparkles: Sparkles,
@@ -51,17 +58,26 @@ export const STORYLINE_ICONS: Record<string, LucideIcon> = {
 
 export const STORYLINE_ICON_KEYS = Object.keys(STORYLINE_ICONS);
 
-export function useStoryline() {
+export function useStoryline(options?: { includeInactive?: boolean }) {
   const qc = useQueryClient();
-  const list = useServerFn(listStoryline);
+  const listPublic = useServerFn(listStoryline);
+  const listAdmin = useServerFn(listAllStoryline);
   const ups = useServerFn(upsertStoryline);
   const del = useServerFn(deleteStoryline);
 
-  const q = useQuery({ queryKey: ["storyline"], queryFn: () => list(), staleTime: 30_000 });
-  const items = (q.data ?? []) as StorylineItem[];
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["storyline"] });
+  const queryKey = ['storyline', options?.includeInactive ? 'admin' : 'public'];
+  const q = useQuery({
+    queryKey,
+    queryFn: () => (options?.includeInactive ? listAdmin() : listPublic()),
+    staleTime: 30_000,
+  });
+  const items = useMemo(() => (q.data ?? []) as StorylineItem[], [q.data]);
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['storyline'] });
 
-  const mUp = useMutation({ mutationFn: (s: any) => ups({ data: s }), onSuccess: invalidate });
+  const mUp = useMutation({
+    mutationFn: (item: StorylineInput) => ups({ data: item }),
+    onSuccess: invalidate,
+  });
   const mDel = useMutation({
     mutationFn: (id: string) => del({ data: { id } }),
     onSuccess: invalidate,
@@ -72,11 +88,11 @@ export function useStoryline() {
       const nextOrder = items.length ? Math.max(...items.map((i) => i.order)) + 1 : 1;
       mUp.mutate({
         year: patch.year ?? new Date().getFullYear().toString(),
-        title: patch.title ?? "Novo marco",
-        subtitle: patch.subtitle ?? "",
-        description: patch.description ?? "",
-        icon: patch.icon ?? "sparkles",
-        badge: patch.badge ?? "",
+        title: patch.title ?? 'Novo marco',
+        subtitle: patch.subtitle ?? '',
+        description: patch.description ?? '',
+        icon: patch.icon ?? 'sparkles',
+        badge: patch.badge ?? '',
         order: patch.order ?? nextOrder,
         active: patch.active ?? true,
       });

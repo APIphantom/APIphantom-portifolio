@@ -1,5 +1,5 @@
-import { useRef, type ReactNode } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, type ReactNode } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 export function TiltCard({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -13,7 +13,7 @@ export function TiltCard({ children, className }: { children: ReactNode; classNa
   return (
     <motion.div
       ref={ref}
-      style={{ rotateX, rotateY, transformPerspective: 900, transformStyle: "preserve-3d" }}
+      style={{ rotateX, rotateY, transformPerspective: 900, transformStyle: 'preserve-3d' }}
       onMouseMove={(e) => {
         const r = ref.current?.getBoundingClientRect();
         if (!r) return;

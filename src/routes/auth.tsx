@@ -1,23 +1,23 @@
-import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Lock, Mail, LogIn, AlertTriangle, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
-import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute, useNavigate, useSearch, Link } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Lock, Mail, LogIn, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
   reason: z.string().optional(),
 });
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute('/auth')({
   ssr: false,
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Acesso restrito — Adriano" },
-      { name: "robots", content: "noindex, nofollow" },
+      { title: 'Acesso restrito — Adriano' },
+      { name: 'robots', content: 'noindex, nofollow' },
     ],
   }),
   component: AuthPage,
@@ -25,9 +25,9 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const search = useSearch({ from: "/auth" });
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const search = useSearch({ from: '/auth' });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [bootCheck, setBootCheck] = useState(true);
 
@@ -36,12 +36,12 @@ function AuthPage() {
     (async () => {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
-        const { data: isAdmin } = await supabase.rpc("has_role", {
+        const { data: isAdmin } = await supabase.rpc('has_role', {
           _user_id: data.user.id,
-          _role: "admin",
+          _role: 'admin',
         });
         if (isAdmin === true) {
-          navigate({ to: search.redirect || "/admin", replace: true });
+          navigate({ to: search.redirect || '/admin', replace: true });
           return;
         }
       }
@@ -54,22 +54,22 @@ function AuthPage() {
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error || !data.user) {
-      toast.error(error?.message || "Não foi possível entrar.");
+      toast.error(error?.message || 'Não foi possível entrar.');
       setLoading(false);
       return;
     }
-    const { data: isAdmin } = await supabase.rpc("has_role", {
+    const { data: isAdmin } = await supabase.rpc('has_role', {
       _user_id: data.user.id,
-      _role: "admin",
+      _role: 'admin',
     });
     if (isAdmin !== true) {
       await supabase.auth.signOut();
-      toast.error("Esta conta não tem acesso administrativo.");
+      toast.error('Esta conta não tem acesso administrativo.');
       setLoading(false);
       return;
     }
-    toast.success("Bem-vindo de volta, Adriano.");
-    navigate({ to: search.redirect || "/admin", replace: true });
+    toast.success('Bem-vindo de volta, Adriano.');
+    navigate({ to: search.redirect || '/admin', replace: true });
   };
 
   if (bootCheck) {
@@ -107,7 +107,7 @@ function AuthPage() {
           </p>
         </div>
 
-        {search.reason === "forbidden" && (
+        {search.reason === 'forbidden' && (
           <div className="mb-4 p-3 rounded-lg border border-destructive/30 bg-destructive/5 text-destructive text-xs flex items-start gap-2">
             <AlertTriangle className="size-4 shrink-0 mt-0.5" />
             <span>Sua conta foi reconhecida, mas não possui permissão de administrador.</span>

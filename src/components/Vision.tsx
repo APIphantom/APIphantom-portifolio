@@ -1,58 +1,71 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowDownRight, Github } from 'lucide-react';
+import { useSettings } from '@/lib/projects-store';
+import { safeHref } from '@/lib/utils';
 
 export function Vision() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const { scrollYProgress } = useScroll(
-    mounted ? { target: ref, offset: ["start end", "end start"] } : undefined,
-  );
-  const x = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const { settings } = useSettings();
+  const reduceMotion = useReducedMotion();
+  const githubHref = safeHref(settings.github);
 
   return (
     <section
       id="visao"
-      ref={ref}
-      className="relative py-32 px-6 lg:px-10 overflow-hidden border-y border-border"
+      className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-24 lg:px-10 lg:py-28"
       aria-labelledby="visao-title"
     >
-      <div className="absolute inset-0 -z-10 scanlines opacity-40" aria-hidden="true" />
-      <motion.div style={{ x }} className="text-xs uppercase tracking-[0.5em] text-primary mb-8">
-        // 04 — Minha visão como dev
-      </motion.div>
-
-      <div className="mx-auto max-w-6xl">
-        <h2 id="visao-title" className="display text-[clamp(2.5rem,9vw,8rem)]">
-          Interfaces
-          <br />
-          que <span className="text-muted-foreground">resolvem</span>{" "}
-          <span className="text-primary text-glow">problemas.</span>
-        </h2>
-        <p className="mt-12 max-w-2xl text-lg md:text-2xl text-muted-foreground leading-relaxed">
-          Penso o front-end como ponte entre{" "}
-          <span className="text-foreground font-bold">design</span>,{" "}
-          <span className="text-foreground">código</span> e{" "}
-          <span className="text-foreground">pessoas</span>. O usuário não enxerga a stack — enxerga
-          a experiência. É nela que coloco minha energia.
-        </p>
-
-        <div className="mt-16 grid sm:grid-cols-3 gap-px bg-border rounded-2xl overflow-hidden">
-          {[
-            { k: "Design", v: "Fidelidade ao layout, hierarquia e consistência visual" },
-            { k: "Código", v: "Componentizado, tipado, com boas práticas e testes" },
-            { k: "UX", v: "Acessível, responsivo e performático em qualquer device" },
-          ].map((b) => (
-            <div key={b.k} className="bg-card p-8">
-              <div className="text-[10px] uppercase tracking-[0.3em] text-primary">// {b.k}</div>
-              <p className="mt-3 text-sm text-muted-foreground">{b.v}</p>
+      <div className="mx-auto max-w-7xl">
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: reduceMotion ? 0 : 0.4 }}
+          className="relative overflow-hidden rounded-3xl border border-primary/35 bg-card/55 p-6 sm:p-9 lg:p-12"
+        >
+          <div
+            className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full bg-primary/10 blur-3xl"
+            aria-hidden="true"
+          />
+          <div className="relative grid gap-9 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="max-w-3xl">
+              <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-primary sm:text-xs">
+                // 05 — Próximo passo
+              </p>
+              <h2
+                id="visao-title"
+                className="display text-4xl leading-[0.98] sm:text-5xl lg:text-6xl"
+              >
+                Quero construir o próximo <span className="text-primary">capítulo.</span>
+              </h2>
+              <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                Estou aberto a conversar sobre oportunidades como{' '}
+                <span className="font-semibold text-foreground">
+                  {settings.role || 'Desenvolvedor Front-End Júnior'}
+                </span>
+                , projetos colaborativos e desafios de interface.
+              </p>
             </div>
-          ))}
-        </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row lg:flex-col lg:items-stretch">
+              <a
+                href="#contato"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-xs font-bold uppercase tracking-[0.13em] text-primary-foreground transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                Conversar <ArrowDownRight className="size-4" aria-hidden="true" />
+              </a>
+              {githubHref ? (
+                <a
+                  href={githubHref}
+                  target={githubHref.startsWith('http') ? '_blank' : undefined}
+                  rel={githubHref.startsWith('http') ? 'noreferrer' : undefined}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-border px-5 text-xs font-semibold uppercase tracking-[0.13em] text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <Github className="size-4" aria-hidden="true" /> GitHub
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

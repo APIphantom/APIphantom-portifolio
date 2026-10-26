@@ -1,17 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { UploadCloud, Search, Trash2, Copy, X } from "lucide-react";
-import { useMedia } from "@/lib/projects-store";
-import { toast } from "sonner";
-import { ProjectMedia } from "@/components/ProjectMedia";
+import { createFileRoute } from '@tanstack/react-router';
+import { useEffect, useRef, useState } from 'react';
+import { UploadCloud, Search, Trash2, Copy, X } from 'lucide-react';
+import { useMedia } from '@/lib/projects-store';
+import { toast } from 'sonner';
+import { ProjectMedia } from '@/components/ProjectMedia';
 
-export const Route = createFileRoute("/admin/midias")({
+export const Route = createFileRoute('/admin/midias')({
   component: MidiasPage,
 });
 
 function MidiasPage() {
   const { items, addAsync, remove, uploading } = useMedia();
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
   const ref = useRef<HTMLInputElement>(null);
   const [tasks, setTasks] = useState<
@@ -21,41 +21,41 @@ function MidiasPage() {
       size: number;
       file: File;
       progress: number;
-      status: "queued" | "uploading" | "done" | "error" | "canceled";
+      status: 'queued' | 'uploading' | 'done' | 'error' | 'canceled';
       error?: string;
     }>
   >([]);
 
   const allowed = new Set([
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-    "image/svg+xml",
-    "video/mp4",
-    "video/webm",
-    "video/quicktime",
-    "video/x-msvideo",
-    "video/x-matroska",
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/svg+xml',
+    'video/mp4',
+    'video/webm',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/x-matroska',
   ]);
   const maxFileSize = 120 * 1024 * 1024;
 
   useEffect(() => {
-    const next = tasks.find((t) => t.status === "queued");
-    const running = tasks.some((t) => t.status === "uploading");
+    const next = tasks.find((t) => t.status === 'queued');
+    const running = tasks.some((t) => t.status === 'uploading');
     if (!next || running) return;
 
     let progressTimer: ReturnType<typeof setInterval> | null = null;
 
     const run = async () => {
       setTasks((prev) =>
-        prev.map((t) => (t.id === next.id ? { ...t, status: "uploading", progress: 5 } : t)),
+        prev.map((t) => (t.id === next.id ? { ...t, status: 'uploading', progress: 5 } : t)),
       );
 
       progressTimer = setInterval(() => {
         setTasks((prev) =>
           prev.map((t) => {
-            if (t.id !== next.id || t.status !== "uploading") return t;
+            if (t.id !== next.id || t.status !== 'uploading') return t;
             return { ...t, progress: Math.min(90, t.progress + 7) };
           }),
         );
@@ -64,24 +64,24 @@ function MidiasPage() {
       try {
         await addAsync({
           name: next.file.name,
-          url: "",
+          url: '',
           type: next.file.type,
           size: next.file.size,
           file: next.file,
-          category: "misc",
+          category: 'misc',
         });
 
         setTasks((prev) =>
-          prev.map((t) => (t.id === next.id ? { ...t, status: "done", progress: 100 } : t)),
+          prev.map((t) => (t.id === next.id ? { ...t, status: 'done', progress: 100 } : t)),
         );
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Falha no upload";
+        const message = error instanceof Error ? error.message : 'Falha no upload';
         setTasks((prev) =>
           prev.map((t) =>
             t.id === next.id
               ? {
                   ...t,
-                  status: "error",
+                  status: 'error',
                   error: message,
                   progress: 0,
                 }
@@ -109,7 +109,7 @@ function MidiasPage() {
       }
 
       const taskId =
-        typeof crypto !== "undefined" && crypto.randomUUID
+        typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
           : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -121,7 +121,7 @@ function MidiasPage() {
           size: f.size,
           file: f,
           progress: 0,
-          status: "queued",
+          status: 'queued',
         },
       ]);
     });
@@ -136,7 +136,7 @@ function MidiasPage() {
           <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">// Mídias</div>
           <h1 className="text-3xl lg:text-4xl font-black tracking-tight">Biblioteca de mídias</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {items.length} arquivos · Supabase Storage{uploading ? " · enviando…" : ""}
+            {items.length} arquivos · Supabase Storage{uploading ? ' · enviando…' : ''}
           </p>
         </div>
         <button
@@ -181,13 +181,13 @@ function MidiasPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {t.status === "queued" && (
+                    {t.status === 'queued' && (
                       <button
                         type="button"
                         onClick={() =>
                           setTasks((prev) =>
                             prev.map((x) =>
-                              x.id === t.id ? { ...x, status: "canceled", progress: 0 } : x,
+                              x.id === t.id ? { ...x, status: 'canceled', progress: 0 } : x,
                             ),
                           )
                         }
@@ -196,14 +196,14 @@ function MidiasPage() {
                         Cancelar
                       </button>
                     )}
-                    {t.status === "error" && (
+                    {t.status === 'error' && (
                       <button
                         type="button"
                         onClick={() =>
                           setTasks((prev) =>
                             prev.map((x) =>
                               x.id === t.id
-                                ? { ...x, status: "queued", error: undefined, progress: 0 }
+                                ? { ...x, status: 'queued', error: undefined, progress: 0 }
                                 : x,
                             ),
                           )
@@ -217,7 +217,7 @@ function MidiasPage() {
                 </div>
                 <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
                   <div
-                    className={`h-full transition-all ${t.status === "error" ? "bg-destructive" : "bg-primary"}`}
+                    className={`h-full transition-all ${t.status === 'error' ? 'bg-destructive' : 'bg-primary'}`}
                     style={{ width: `${t.progress}%` }}
                   />
                 </div>
@@ -247,7 +247,7 @@ function MidiasPage() {
               mimeType={m.mimeType}
               className="w-full h-full object-cover"
               containerProps={{ onClick: () => setPreview(m.url) }}
-              videoOptions={{ muted: true, controls: true, preload: "metadata" }}
+              videoOptions={{ muted: true, controls: true, preload: 'metadata' }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
               <div className="text-[10px] font-bold truncate">{m.name}</div>
@@ -258,7 +258,7 @@ function MidiasPage() {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(m.url);
-                    toast.success("URL copiada");
+                    toast.success('URL copiada');
                   }}
                   className="size-6 rounded bg-background/80 flex items-center justify-center hover:text-primary"
                 >
@@ -290,7 +290,7 @@ function MidiasPage() {
             src={preview}
             className="max-w-full max-h-full rounded-xl border border-border object-contain"
             fit="contain"
-            videoOptions={{ controls: true, muted: true, preload: "metadata" }}
+            videoOptions={{ controls: true, muted: true, preload: 'metadata' }}
           />
           <button className="absolute top-4 right-4 size-10 rounded-full border border-border flex items-center justify-center">
             <X />

@@ -1,6 +1,6 @@
-import { QueryClient } from "@tanstack/react-query";
-import { createRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen";
+import { QueryClient } from '@tanstack/react-query';
+import { createRouter } from '@tanstack/react-router';
+import { routeTree } from './routeTree.gen';
 
 export const getRouter = () => {
   const queryClient = new QueryClient({
@@ -14,7 +14,7 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     // Prefetch JS chunks + loader data on link hover/focus for instant nav.
-    defaultPreload: "intent",
+    defaultPreload: 'intent',
     defaultPreloadDelay: 50,
     // Let TanStack Query own freshness for any preloaded data.
     defaultPreloadStaleTime: 0,

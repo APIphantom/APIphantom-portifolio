@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 type Props = {
   projectTitle: string;
@@ -12,7 +12,7 @@ export function FinalCTA({ projectTitle }: Props) {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true, margin: '-80px' }}
         className="mx-auto max-w-7xl relative overflow-hidden rounded-3xl border border-border bg-card p-10 md:p-16"
       >
         <div className="absolute -right-16 -bottom-24 display text-[18rem] text-primary/5 leading-none select-none pointer-events-none">
@@ -22,9 +22,13 @@ export function FinalCTA({ projectTitle }: Props) {
 
         <div className="relative grid md:grid-cols-2 gap-6 items-center">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-4">12 / Contato</div>
+            <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-4">
+              12 / Contato
+            </div>
             <h3 className="display text-4xl md:text-6xl">Gostou deste projeto?</h3>
-            <p className="mt-3 text-2xl md:text-3xl text-primary font-bold">Vamos criar algo incrivel juntos.</p>
+            <p className="mt-3 text-2xl md:text-3xl text-primary font-bold">
+              Vamos criar algo incrivel juntos.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3 md:justify-end">

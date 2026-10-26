@@ -12,6 +12,13 @@ export type {
   MediaItem,
   Technology,
   Settings,
-} from "./projects-store";
-export type { StorylineItem } from "./storyline-store";
-export type { ProjectMedia as Media, ProjectMedia, MediaCategory, MediaType, MediaUpload, MediaResponse } from "./media-types";
+} from './projects-store';
+export type { StorylineItem } from './storyline-store';
+export type {
+  ProjectMedia as Media,
+  ProjectMedia,
+  MediaCategory,
+  MediaType,
+  MediaUpload,
+  MediaResponse,
+} from './media-types';

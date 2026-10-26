@@ -1,16 +1,16 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const contactSchema = z.object({
-  name: z.string().trim().min(2, "Nome muito curto").max(80, "Nome muito longo"),
-  email: z.string().trim().email("Email inválido").max(120),
-  message: z.string().trim().min(10, "Mensagem muito curta").max(1500, "Mensagem muito longa"),
+  name: z.string().trim().min(2, 'Nome muito curto').max(80, 'Nome muito longo'),
+  email: z.string().trim().email('Email inválido').max(120),
+  message: z.string().trim().min(10, 'Mensagem muito curta').max(1500, 'Mensagem muito longa'),
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;
 
-export type ContactResult = { ok: true; provider: "emailjs" } | { ok: false; error: string };
+export type ContactResult = { ok: true; provider: 'emailjs' } | { ok: false; error: string };
 
-const EMAILJS_ENDPOINT = "https://api.emailjs.com/api/v1.0/email/send";
+const EMAILJS_ENDPOINT = 'https://api.emailjs.com/api/v1.0/email/send';
 
 function readEmailJsConfig() {
   const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID as string | undefined;
@@ -21,7 +21,7 @@ function readEmailJsConfig() {
     return {
       ok: false as const,
       error:
-        "EmailJS não configurado. Defina VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID e VITE_EMAILJS_PUBLIC_KEY.",
+        'EmailJS não configurado. Defina VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID e VITE_EMAILJS_PUBLIC_KEY.',
     };
   }
 
@@ -45,7 +45,7 @@ export function validateContactForm(
 
 export async function sendContactMessage(input: ContactInput): Promise<ContactResult> {
   const validated = validateContactForm(input);
-  if (!validated.ok) return { ok: false, error: "Dados inválidos." };
+  if (!validated.ok) return { ok: false, error: 'Dados inválidos.' };
 
   const config = readEmailJsConfig();
   if (!config.ok) return { ok: false, error: config.error };
@@ -65,9 +65,9 @@ export async function sendContactMessage(input: ContactInput): Promise<ContactRe
     };
 
     const response = await fetch(EMAILJS_ENDPOINT, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
     });
@@ -76,12 +76,12 @@ export async function sendContactMessage(input: ContactInput): Promise<ContactRe
       const reason = await response.text();
       return {
         ok: false,
-        error: reason || "Falha ao enviar email pelo EmailJS.",
+        error: reason || 'Falha ao enviar email pelo EmailJS.',
       };
     }
 
-    return { ok: true, provider: "emailjs" };
+    return { ok: true, provider: 'emailjs' };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Erro inesperado." };
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro inesperado.' };
   }
 }

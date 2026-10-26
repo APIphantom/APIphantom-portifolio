@@ -1,7 +1,7 @@
-import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
-import { ImageIcon } from "lucide-react";
-import { ProjectMedia } from "@/components/ProjectMedia";
-import type { VideoMediaOptions } from "@/lib/project-media";
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
+import { ImageIcon } from 'lucide-react';
+import { ProjectMedia } from '@/components/ProjectMedia';
+import type { VideoMediaOptions } from '@/lib/project-media';
 
 type Props = {
   title: string;
@@ -18,10 +18,15 @@ export function FloatingMockup({ title, mediaUrl, mediaVideoOptions, status }: P
   const rsy = useSpring(ry, { stiffness: 120, damping: 18, mass: 0.25 });
 
   return (
-    <motion.div className="relative" style={{ willChange: "transform" }}>
+    <motion.div className="relative" style={{ willChange: 'transform' }}>
       <motion.div
         className="relative aspect-[16/10] rounded-2xl overflow-hidden border border-primary/35 bg-gradient-to-br from-graphite to-background"
-        style={{ rotateX: rsx, rotateY: rsy, transformPerspective: 1200, transformStyle: "preserve-3d" }}
+        style={{
+          rotateX: rsx,
+          rotateY: rsy,
+          transformPerspective: 1200,
+          transformStyle: 'preserve-3d',
+        }}
         onMouseMove={(event) => {
           if (reducedMotion) return;
           const rect = (event.currentTarget as HTMLDivElement).getBoundingClientRect();
@@ -48,9 +53,9 @@ export function FloatingMockup({ title, mediaUrl, mediaVideoOptions, status }: P
               loop: mediaVideoOptions?.loop ?? true,
               autoplay: mediaVideoOptions?.autoplay,
               playsInline: mediaVideoOptions?.playsInline ?? true,
-              preload: mediaVideoOptions?.preload ?? "metadata",
+              preload: mediaVideoOptions?.preload ?? 'metadata',
               poster: mediaVideoOptions?.poster,
-              objectFit: mediaVideoOptions?.objectFit ?? "cover",
+              objectFit: mediaVideoOptions?.objectFit ?? 'cover',
             }}
           />
         ) : (
@@ -64,7 +69,9 @@ export function FloatingMockup({ title, mediaUrl, mediaVideoOptions, status }: P
 
       <motion.div
         animate={reducedMotion ? undefined : { y: [0, -8, 0] }}
-        transition={reducedMotion ? undefined : { duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        transition={
+          reducedMotion ? undefined : { duration: 4, repeat: Infinity, ease: 'easeInOut' }
+        }
         className="absolute -bottom-5 left-5 rounded-xl border border-primary/35 bg-card/75 backdrop-blur px-4 py-3"
       >
         <div className="text-[9px] uppercase tracking-[0.28em] text-primary mb-1">Status</div>

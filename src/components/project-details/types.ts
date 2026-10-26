@@ -1,18 +1,18 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from 'lucide-react';
 
 export type SectionId =
-  | "overview"
-  | "problem"
-  | "objectives"
-  | "research"
-  | "architecture"
-  | "design"
-  | "development"
-  | "performance"
-  | "results"
-  | "gallery"
-  | "learnings"
-  | "cta";
+  | 'overview'
+  | 'problem'
+  | 'objectives'
+  | 'research'
+  | 'architecture'
+  | 'design'
+  | 'development'
+  | 'performance'
+  | 'results'
+  | 'gallery'
+  | 'learnings'
+  | 'cta';
 
 export type SectionNavItem = {
   id: SectionId;

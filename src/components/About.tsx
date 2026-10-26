@@ -1,34 +1,34 @@
-import { motion } from "framer-motion";
-import { Code2, Palette, Smartphone, Zap } from "lucide-react";
-import { LazyImage } from "@/components/LazyImage";
-import { useSettings } from "@/lib/projects-store";
+import { motion } from 'framer-motion';
+import { Code2, Palette, Smartphone, Zap } from 'lucide-react';
+import { LazyImage } from '@/components/LazyImage';
+import { useSettings } from '@/lib/projects-store';
 
 const cards = [
   {
     icon: Code2,
-    title: "Clean Code",
-    text: "React, TypeScript e arquitetura componentizada com foco em manutenibilidade.",
+    title: 'Clean Code',
+    text: 'React, TypeScript e arquitetura componentizada com foco em manutenibilidade.',
   },
   {
     icon: Palette,
-    title: "UI Cuidada",
-    text: "Interfaces com hierarquia clara, atenção ao detalhe e fidelidade ao design.",
+    title: 'UI Cuidada',
+    text: 'Interfaces com hierarquia clara, atenção ao detalhe e fidelidade ao design.',
   },
   {
     icon: Smartphone,
-    title: "Mobile-First",
-    text: "Experiências fluidas em qualquer dispositivo, do mobile ao desktop.",
+    title: 'Mobile-First',
+    text: 'Experiências fluidas em qualquer dispositivo, do mobile ao desktop.',
   },
   {
     icon: Zap,
-    title: "Performance",
-    text: "Carregamento rápido, lazy loading e animações suaves sem sacrificar UX.",
+    title: 'Performance',
+    text: 'Carregamento rápido, lazy loading e animações suaves sem sacrificar UX.',
   },
 ];
 
 export function About() {
   const { settings } = useSettings();
-  const displayName = settings.name || "Adriano Oliveira";
+  const displayName = settings.name || 'Adriano Oliveira';
 
   return (
     <section id="sobre" className="relative py-32 px-6 lg:px-10" aria-labelledby="sobre-title">
@@ -37,7 +37,7 @@ export function About() {
           <motion.div
             initial={{ opacity: 1, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6 }}
           >
             <div className="text-xs uppercase tracking-[0.3em] text-primary mb-6">
@@ -89,8 +89,8 @@ export function About() {
               <span> {settings.bio}</span>
             ) : (
               <span>
-                {" "}
-                Atualmente estudo{" "}
+                {' '}
+                Atualmente estudo{' '}
                 <span className="text-foreground">React, Next.js e TypeScript</span> a fundo,
                 construo projetos pessoais para fixar o aprendizado e busco minha primeira
                 oportunidade no mercado.

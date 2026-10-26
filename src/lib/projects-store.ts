@@ -1,16 +1,18 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from 'react';
 import {
   useQuery,
   useMutation,
   useQueryClient,
   useQueryClient as useQc,
-} from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+} from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
 import {
   listProjects,
+  listPublishedProjects,
   upsertProject,
   deleteProject,
   duplicateProjectFn,
+  getProjectById,
   listTechnologies,
   upsertTechnology,
   deleteTechnology,
@@ -19,19 +21,20 @@ import {
   uploadMedia,
   deleteMedia,
   getSettings,
+  getAdminSettings,
   updateSettings,
-} from "./portfolio.functions";
-import type { MediaUpload, ProjectMedia } from "./media-types";
-import type { VideoMediaOptions } from "./project-media";
+} from './portfolio.functions';
+import type { MediaUpload, ProjectMedia } from './media-types';
+import type { VideoMediaOptions } from './project-media';
 
 /* ============ TIPOS (mantidos da versão antiga) ============ */
-export type ProjectCategory = "web" | "ui" | "ecommerce" | "experiment" | "mobile";
-export type ProjectStatus = "published" | "draft" | "archived";
-export type ProjectVisibility = "public" | "private";
+export type ProjectCategory = 'web' | 'ui' | 'ecommerce' | 'experiment' | 'mobile';
+export type ProjectStatus = 'published' | 'draft' | 'archived' | 'in_review';
+export type ProjectVisibility = 'public' | 'private';
 
 export type ContentBlock = {
   id: string;
-  kind: "objective" | "problem" | "solution" | "process" | "result" | "custom";
+  kind: 'objective' | 'problem' | 'solution' | 'process' | 'result' | 'custom';
   title: string;
   description: string;
   icon?: string;
@@ -51,9 +54,12 @@ export type SEO = {
   metaDescription?: string;
   keywords?: string;
   canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
   ogImage?: string;
   twitterImage?: string;
   robotsIndex?: boolean;
+  robotsFollow?: boolean;
   structuredData?: string;
 };
 
@@ -65,25 +71,23 @@ export type Publication = {
   featured?: boolean;
 };
 
-export type CaseStudy = {
+import type { CaseStudyV2 } from './case-study';
+
+export type LegacyCaseStudy = {
   problemStatement?: string;
   roles?: string[];
   architecture?: string;
   systemFlow?: string;
   features?: string[];
-  technicalChallenges?: string[];
-  technicalDecisions?: string[];
   databaseStructure?: string;
   timeline?: string[];
   developmentProcess?: string[];
-  roadmapDone?: string[];
-  roadmapInProgress?: string[];
-  roadmapPlanned?: string[];
-  learnings?: string[];
   performance?: Metric[];
   codeNumbers?: Metric[];
   mediaSettings?: ProjectMediaSettings;
 };
+
+export type CaseStudy = LegacyCaseStudy | CaseStudyV2;
 
 export type ProjectMediaSettings = {
   thumbnail?: VideoMediaOptions;
@@ -120,7 +124,6 @@ export type Project = {
   objective?: string;
   problem?: string;
   solution?: string;
-  process?: string;
   result?: string;
   contentBlocks?: ContentBlock[];
   metrics?: Metric[];
@@ -136,43 +139,50 @@ export type Project = {
 };
 
 export const CATEGORIES: { value: ProjectCategory; label: string }[] = [
-  { value: "web", label: "Web App" },
-  { value: "ui", label: "UI/Design" },
-  { value: "ecommerce", label: "E-commerce" },
-  { value: "experiment", label: "Experimento" },
-  { value: "mobile", label: "Mobile" },
+  { value: 'web', label: 'Web App' },
+  { value: 'ui', label: 'UI/Design' },
+  { value: 'ecommerce', label: 'E-commerce' },
+  { value: 'experiment', label: 'Experimento' },
+  { value: 'mobile', label: 'Mobile' },
 ];
 
 export function slugify(s: string) {
   return s
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 export function uid() {
-  return typeof crypto !== "undefined" && crypto.randomUUID
+  return typeof crypto !== 'undefined' && crypto.randomUUID
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2, 10);
 }
 
 /* ============ HOOKS ============ */
-export function useProjects() {
+export function useProjects(opts?: { publishedOnly?: boolean }) {
   const qc = useQueryClient();
   const list = useServerFn(listProjects);
+  const listPublished = useServerFn(listPublishedProjects);
   const upsert = useServerFn(upsertProject);
   const del = useServerFn(deleteProject);
   const dup = useServerFn(duplicateProjectFn);
 
-  const q = useQuery({ queryKey: ["projects"], queryFn: () => list(), staleTime: 30_000 });
+  const q = useQuery({
+    queryKey: ['projects', opts?.publishedOnly ? 'published' : 'all'],
+    queryFn: () => (opts?.publishedOnly ? listPublished() : list()),
+    staleTime: 30_000,
+  });
   const projects = useMemo(() => (q.data ?? []) as Project[], [q.data]);
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["projects"] });
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['projects'] });
+
+  const fetchById = useServerFn(getProjectById);
 
   const mUpsert = useMutation({
-    mutationFn: (p: Omit<Project, "id"> & { id?: string }) => upsert({ data: p }),
+    mutationFn: (p: Omit<Project, 'id'> & { id?: string }) => upsert({ data: p }),
     onSuccess: invalidate,
   });
   const mDel = useMutation({
@@ -185,7 +195,7 @@ export function useProjects() {
   });
 
   const addProject = useCallback(
-    async (p: Omit<Project, "id" | "slug"> & { slug?: string }) => {
+    async (p: Omit<Project, 'id' | 'slug'> & { slug?: string }) => {
       const slug = p.slug || slugify(p.title) || uid().slice(0, 8);
       await mUpsert.mutateAsync({ ...p, slug });
     },
@@ -195,7 +205,7 @@ export function useProjects() {
   const updateProject = useCallback(
     async (id: string, patch: Partial<Project>) => {
       const current = projects.find((x) => x.id === id);
-      if (!current) throw new Error("Projeto não encontrado para atualização");
+      if (!current) throw new Error('Projeto não encontrado para atualização');
       await mUpsert.mutateAsync({ ...current, ...patch, id });
     },
     [mUpsert, projects],
@@ -210,7 +220,9 @@ export function useProjects() {
     updateProject,
     removeProject,
     duplicateProject,
+    getById: (id: string) => fetchById({ data: { id } }),
     loaded: !q.isPending,
+    saving: mUpsert.isPending,
   };
 }
 
@@ -222,7 +234,7 @@ async function fileToBase64(file: File): Promise<string> {
     const r = new FileReader();
     r.onload = () => {
       const result = r.result as string;
-      const idx = result.indexOf(",");
+      const idx = result.indexOf(',');
       resolve(idx >= 0 ? result.slice(idx + 1) : result);
     };
     r.onerror = () => reject(r.error);
@@ -230,27 +242,32 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-export function useMedia() {
+export function useMedia(options?: { includeLibrary?: boolean }) {
   const qc = useQc();
   const list = useServerFn(listMedia);
   const up = useServerFn(uploadMedia);
   const del = useServerFn(deleteMedia);
 
-  const q = useQuery({ queryKey: ["media"], queryFn: () => list(), staleTime: 30_000 });
+  const q = useQuery({
+    queryKey: ['media'],
+    queryFn: () => list(),
+    staleTime: 30_000,
+    enabled: options?.includeLibrary !== false,
+  });
   const items = (q.data ?? []) as MediaItem[];
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["media"] });
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['media'] });
 
   const mUp = useMutation({
     mutationFn: async (m: MediaUpload) => {
       // Compat: se vier `file`, envia para Storage. Se vier `url` (data URI), extrai base64.
-      let dataBase64 = "";
+      let dataBase64 = '';
       if (m.file) dataBase64 = await fileToBase64(m.file);
-      else if (m.url?.startsWith("data:")) {
-        const idx = m.url.indexOf(",");
-        dataBase64 = idx >= 0 ? m.url.slice(idx + 1) : "";
+      else if (m.url?.startsWith('data:')) {
+        const idx = m.url.indexOf(',');
+        dataBase64 = idx >= 0 ? m.url.slice(idx + 1) : '';
       } else {
-        throw new Error("Upload precisa de arquivo ou data URI");
+        throw new Error('Upload precisa de arquivo ou data URI');
       }
       return up({
         data: {
@@ -258,7 +275,7 @@ export function useMedia() {
           type: m.type,
           size: m.size,
           dataBase64,
-          folder: m.folder ?? "",
+          folder: m.folder ?? '',
           projectId: m.projectId,
           category: m.category,
           alt: m.alt,
@@ -290,7 +307,7 @@ export function useProjectMedia(projectId?: string, category?: string) {
   const list = useServerFn(listProjectMedia);
   const enabled = Boolean(projectId);
   const q = useQuery({
-    queryKey: ["media", "project", projectId, category ?? "all"],
+    queryKey: ['media', 'project', projectId, category ?? 'all'],
     queryFn: () => list({ data: { projectId: projectId as string, category } }),
     staleTime: 30_000,
     enabled,
@@ -315,12 +332,12 @@ export function useTechnologies() {
   const ups = useServerFn(upsertTechnology);
   const del = useServerFn(deleteTechnology);
 
-  const q = useQuery({ queryKey: ["technologies"], queryFn: () => list(), staleTime: 30_000 });
+  const q = useQuery({ queryKey: ['technologies'], queryFn: () => list(), staleTime: 30_000 });
   const items = useMemo(() => (q.data ?? []) as Technology[], [q.data]);
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["technologies"] });
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['technologies'] });
 
   const mUp = useMutation({
-    mutationFn: (t: Omit<Technology, "id"> & { id?: string }) => ups({ data: t }),
+    mutationFn: (t: Omit<Technology, 'id'> & { id?: string }) => ups({ data: t }),
     onSuccess: invalidate,
   });
   const mDel = useMutation({
@@ -328,7 +345,7 @@ export function useTechnologies() {
     onSuccess: invalidate,
   });
 
-  const add = useCallback((t: Omit<Technology, "id">) => mUp.mutate(t), [mUp]);
+  const add = useCallback((t: Omit<Technology, 'id'>) => mUp.mutate(t), [mUp]);
   const update = useCallback(
     (id: string, patch: Partial<Technology>) => {
       const cur = items.find((x) => x.id === id);
@@ -360,36 +377,53 @@ export type Settings = {
 };
 
 const settingsDefaults: Settings = {
-  name: "Adriano Oliveira",
-  role: "Desenvolvedor Front-End Júnior",
-  bio: "",
-  email: "",
-  location: "Brasil",
-  cvUrl: "/cv-adriano-oliveira.pdf",
-  github: "",
-  linkedin: "",
-  twitter: "",
-  instagram: "",
-  githubUsername: "",
-  githubToken: "",
+  name: 'Adriano Oliveira',
+  role: 'Desenvolvedor Front-End Júnior',
+  bio: '',
+  email: '',
+  location: 'Brasil',
+  cvUrl: '/cv-adriano-oliveira.pdf',
+  github: '',
+  linkedin: '',
+  twitter: '',
+  instagram: '',
+  githubUsername: '',
+  githubToken: '',
 };
 
-export function useSettings() {
+export function useSettings(options?: { includeSecrets?: boolean }) {
   const qc = useQc();
-  const get = useServerFn(getSettings);
+  const getPublic = useServerFn(getSettings);
+  const getAdmin = useServerFn(getAdminSettings);
+  const queryKey = ['settings', options?.includeSecrets ? 'admin' : 'public'];
   const upd = useServerFn(updateSettings);
+  const updateQueue = useRef(Promise.resolve());
 
-  const q = useQuery({ queryKey: ["settings"], queryFn: () => get(), staleTime: 60_000 });
+  const q = useQuery({
+    queryKey,
+    queryFn: () => (options?.includeSecrets ? getAdmin() : getPublic()),
+    staleTime: 60_000,
+  });
   const settings = (q.data ?? settingsDefaults) as Settings;
 
   const mUpd = useMutation({
     mutationFn: (patch: Partial<Settings>) => upd({ data: patch }),
     onSuccess: (data) => {
-      qc.setQueryData(["settings"], data);
+      qc.setQueryData(queryKey, data);
     },
   });
 
-  const update = useCallback((patch: Partial<Settings>) => mUpd.mutate(patch), [mUpd]);
+  const update = useCallback(
+    (patch: Partial<Settings>) => {
+      const pending = updateQueue.current.then(() => mUpd.mutateAsync(patch));
+      updateQueue.current = pending.then(
+        () => undefined,
+        () => undefined,
+      );
+      return pending;
+    },
+    [mUpd],
+  );
 
-  return { settings, update, loaded: !q.isPending };
+  return { settings, update, loaded: !q.isPending, saving: mUpd.isPending };
 }

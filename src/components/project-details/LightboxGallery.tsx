@@ -1,7 +1,7 @@
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { X } from "lucide-react";
-import { ProjectMedia } from "@/components/ProjectMedia";
-import type { VideoMediaOptions } from "@/lib/project-media";
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { X } from 'lucide-react';
+import { ProjectMedia } from '@/components/ProjectMedia';
+import type { VideoMediaOptions } from '@/lib/project-media';
 
 type Props = {
   images: string[];

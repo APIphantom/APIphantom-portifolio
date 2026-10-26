@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   Outlet,
   Link,
@@ -6,14 +6,14 @@ import {
   useRouter,
   HeadContent,
   Scripts,
-} from "@tanstack/react-router";
-import { Toaster } from "sonner";
-import { Loader } from "@/components/Loader";
-import { CustomCursor } from "@/components/CustomCursor";
-import { PageTransition } from "@/components/PageTransition";
-import { RouteProgress } from "@/components/RouteProgress";
+} from '@tanstack/react-router';
+import { Toaster } from 'sonner';
+import { Loader } from '@/components/Loader';
+import { CustomCursor } from '@/components/CustomCursor';
+import { PageTransition } from '@/components/PageTransition';
+import { RouteProgress } from '@/components/RouteProgress';
 
-import appCss from "../styles.css?url";
+import appCss from '../styles.css?url';
 
 function NotFoundComponent() {
   return (
@@ -75,44 +75,44 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Adriano Oliveira — Desenvolvedor Front-End Júnior" },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Adriano Oliveira — Desenvolvedor Front-End Júnior' },
       {
-        name: "description",
+        name: 'description',
         content:
-          "Portfólio de Adriano Oliveira — Desenvolvedor Front-End Júnior em React, Next.js, TypeScript e Tailwind.",
+          'Portfólio de Adriano Oliveira — Desenvolvedor Front-End Júnior em React, Next.js, TypeScript e Tailwind.',
       },
-      { name: "author", content: "Adriano Oliveira" },
-      { property: "og:site_name", content: "Adriano Oliveira — Portfólio" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: 'author', content: 'Adriano Oliveira' },
+      { property: 'og:site_name', content: 'Adriano Oliveira — Portfólio' },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
     ],
     links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/png", href: "/web-icon.png" },
-      { rel: "apple-touch-icon", href: "/web-icon.png" },
-      { rel: "manifest", href: "/site.webmanifest" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "dns-prefetch", href: "https://api.github.com" },
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', type: 'image/png', href: '/web-icon.png' },
+      { rel: 'apple-touch-icon', href: '/web-icon.png' },
+      { rel: 'manifest', href: '/site.webmanifest' },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+      { rel: 'dns-prefetch', href: 'https://api.github.com' },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&display=swap",
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&display=swap',
       },
     ],
     scripts: [
       {
-        type: "application/ld+json",
+        type: 'application/ld+json',
         children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Adriano Oliveira — Portfólio",
-          url: "/",
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'Adriano Oliveira — Portfólio',
+          url: '/',
           author: {
-            "@type": "Person",
-            name: "Adriano Oliveira",
-            jobTitle: "Desenvolvedor Front-End Júnior",
+            '@type': 'Person',
+            name: 'Adriano Oliveira',
+            jobTitle: 'Desenvolvedor Front-End Júnior',
           },
         }),
       },
@@ -153,9 +153,9 @@ function RootComponent() {
         position="bottom-center"
         toastOptions={{
           style: {
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            color: "var(--foreground)",
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            color: 'var(--foreground)',
           },
         }}
       />

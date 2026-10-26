@@ -1,6 +1,6 @@
-import type { CSSProperties, HTMLAttributes, ImgHTMLAttributes, VideoHTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
-import { detectMediaKind, resolveVideoOptions, type VideoMediaOptions } from "@/lib/project-media";
+import type { CSSProperties, HTMLAttributes, ImgHTMLAttributes, VideoHTMLAttributes } from 'react';
+import { cn } from '@/lib/utils';
+import { detectMediaKind, resolveVideoOptions, type VideoMediaOptions } from '@/lib/project-media';
 
 type Props = {
   src?: string | null;
@@ -8,17 +8,17 @@ type Props = {
   className?: string;
   mediaType?: string | null;
   mimeType?: string | null;
-  imageProps?: Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "alt" | "className">;
-  videoProps?: Omit<VideoHTMLAttributes<HTMLVideoElement>, "src" | "className">;
+  imageProps?: Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt' | 'className'>;
+  videoProps?: Omit<VideoHTMLAttributes<HTMLVideoElement>, 'src' | 'className'>;
   videoOptions?: VideoMediaOptions;
-  containerProps?: Omit<HTMLAttributes<HTMLDivElement>, "className">;
-  fit?: "cover" | "contain";
+  containerProps?: Omit<HTMLAttributes<HTMLDivElement>, 'className'>;
+  fit?: 'cover' | 'contain';
   poster?: string;
 };
 
 export function ProjectMedia({
   src,
-  alt = "",
+  alt = '',
   className,
   mediaType,
   mimeType,
@@ -33,10 +33,10 @@ export function ProjectMedia({
 
   const kind = detectMediaKind({ src, mediaType, mimeType });
   const resolvedVideo = resolveVideoOptions(videoOptions);
-  const objectFit = fit ?? resolvedVideo.objectFit ?? "cover";
+  const objectFit = fit ?? resolvedVideo.objectFit ?? 'cover';
   const style: CSSProperties = { objectFit };
 
-  if (kind === "video") {
+  if (kind === 'video') {
     return (
       <div {...containerProps}>
         <video
@@ -62,7 +62,7 @@ export function ProjectMedia({
         src={src}
         alt={alt}
         className={cn(className)}
-        loading={imageProps?.loading ?? "lazy"}
+        loading={imageProps?.loading ?? 'lazy'}
         style={style}
         {...imageProps}
       />

@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { LightboxGallery } from "./LightboxGallery";
-import { ProjectMedia } from "@/components/ProjectMedia";
-import type { VideoMediaOptions } from "@/lib/project-media";
+import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import { LightboxGallery } from './LightboxGallery';
+import { ProjectMedia } from '@/components/ProjectMedia';
+import type { VideoMediaOptions } from '@/lib/project-media';
 
 type Props = {
   images: string[];
@@ -21,13 +21,17 @@ export function GallerySection({ images, labels = [], mediaSettings = {} }: Prop
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true, margin: '-80px' }}
         className="mx-auto max-w-7xl rounded-3xl border border-border/80 bg-gradient-to-b from-card/60 to-background/45 backdrop-blur-xl p-6 md:p-8"
       >
         <div className="flex items-center justify-between gap-3 mb-6">
           <div className="grid items-center gap-3">
-            <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">// 10 - Galeria</span>
-            <p className="flex-1 display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6"><span className="text-primary text-glow">Galeria</span> do projeto.</p>
+            <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">
+              // 10 - Galeria
+            </span>
+            <p className="flex-1 display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6">
+              <span className="text-primary text-glow">Galeria</span> do projeto.
+            </p>
           </div>
           <button
             type="button"
@@ -53,7 +57,7 @@ export function GallerySection({ images, labels = [], mediaSettings = {} }: Prop
                 videoOptions={mediaSettings[i]}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/65 to-transparent opacity-70" />
-              {(labels[i]?.trim() || "").length > 0 && (
+              {(labels[i]?.trim() || '').length > 0 && (
                 <span className="absolute left-2.5 bottom-2.5 rounded-full border border-primary/35 bg-background/65 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
                   {labels[i]}
                 </span>

@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LightboxGallery } from "./LightboxGallery";
-import { ProjectMedia } from "@/components/ProjectMedia";
-import type { VideoMediaOptions } from "@/lib/project-media";
+import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { LightboxGallery } from './LightboxGallery';
+import { ProjectMedia } from '@/components/ProjectMedia';
+import type { VideoMediaOptions } from '@/lib/project-media';
 
 type Props = {
   images: string[];
@@ -25,12 +25,16 @@ export function DesignShowcase({ images, mediaSettings = {} }: Props) {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true, margin: '-80px' }}
         className="mx-auto max-w-7xl rounded-3xl border border-border/80 bg-gradient-to-b from-card/60 to-background/45 backdrop-blur-xl p-6 md:p-8"
       >
         <div className="grid items-center gap-3 mb-8">
-          <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">// 06 - Design</span>
-          <p className="display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6"><span className="text-primary text-glow">Visual</span> do projeto.</p>
+          <span className="text-xs uppercase tracking-[0.5em] text-primary mb-4">
+            // 06 - Design
+          </span>
+          <p className="display text-[clamp(2rem,6vw,5rem)] leading-[0.95] max-w-4xl mb-6">
+            <span className="text-primary text-glow">Visual</span> do projeto.
+          </p>
         </div>
 
         <div className="relative rounded-2xl border border-border/70 bg-background/40 p-3 md:p-4">
@@ -67,7 +71,7 @@ export function DesignShowcase({ images, mediaSettings = {} }: Props) {
               key={`${src}-${i}`}
               onClick={() => setIdx(i)}
               className={`rounded-lg overflow-hidden border ${
-                i === idx ? "border-primary/60" : "border-border/70"
+                i === idx ? 'border-primary/60' : 'border-border/70'
               }`}
             >
               <ProjectMedia

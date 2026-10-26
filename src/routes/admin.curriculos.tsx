@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
-import { UploadCloud, FileText, Copy, CheckCircle2, Trash2, ExternalLink } from "lucide-react";
-import { toast } from "sonner";
-import { useMedia, useSettings } from "@/lib/projects-store";
+import { createFileRoute } from '@tanstack/react-router';
+import { useMemo, useRef, useState } from 'react';
+import { UploadCloud, FileText, Copy, CheckCircle2, Trash2, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
+import { useMedia, useSettings } from '@/lib/projects-store';
 
-export const Route = createFileRoute("/admin/curriculos")({
+export const Route = createFileRoute('/admin/curriculos')({
   component: CurriculosPage,
 });
 
@@ -19,38 +19,38 @@ function CurriculosPage() {
       items
         .filter(
           (item) =>
-            item.mimeType === "application/pdf" ||
-            item.folder === "curriculos" ||
-            item.name.toLowerCase().endsWith(".pdf"),
+            item.mimeType === 'application/pdf' ||
+            item.folder === 'curriculos' ||
+            item.name.toLowerCase().endsWith('.pdf'),
         )
-        .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? "")),
+        .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '')),
     [items],
   );
 
-  const activeCvUrl = settings.cvUrl || "/cv-adriano-oliveira.pdf";
+  const activeCvUrl = settings.cvUrl || '/cv-adriano-oliveira.pdf';
 
   const handleFiles = (files: FileList) => {
     const pdfs = Array.from(files).filter(
-      (file) => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"),
+      (file) => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'),
     );
 
     if (pdfs.length === 0) {
-      toast.error("Selecione ao menos um PDF.");
+      toast.error('Selecione ao menos um PDF.');
       return;
     }
 
     pdfs.forEach((file, index) => {
       add({
         name: file.name,
-        url: "",
-        type: file.type || "application/pdf",
+        url: '',
+        type: file.type || 'application/pdf',
         size: file.size,
         file,
-        folder: "curriculos",
+        folder: 'curriculos',
       });
 
       if (index === 0) {
-        toast.success("Currículo enviado. Após o upload, selecione-o como ativo na lista.");
+        toast.success('Currículo enviado. Após o upload, selecione-o como ativo na lista.');
       }
     });
   };
@@ -58,17 +58,17 @@ function CurriculosPage() {
   const setAsActive = (url: string) => {
     setBusyUrl(url);
     update({ cvUrl: url });
-    toast.success("Currículo ativo atualizado.");
+    toast.success('Currículo ativo atualizado.');
     setBusyUrl(null);
   };
 
   const removeCv = (id: string, url: string) => {
     if (url === activeCvUrl) {
-      toast.error("Defina outro currículo como ativo antes de excluir este arquivo.");
+      toast.error('Defina outro currículo como ativo antes de excluir este arquivo.');
       return;
     }
     remove(id);
-    toast.success("Currículo removido.");
+    toast.success('Currículo removido.');
   };
 
   return (
@@ -78,9 +78,7 @@ function CurriculosPage() {
           <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">
             // Currículos
           </div>
-          <h1 className="text-3xl lg:text-4xl font-black tracking-tight">
-            Gerenciar currículos
-          </h1>
+          <h1 className="text-3xl lg:text-4xl font-black tracking-tight">Gerenciar currículos</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Envie novos PDFs, mantenha versões antigas e escolha qual arquivo será usado no botão
             "Download CV".
@@ -92,7 +90,7 @@ function CurriculosPage() {
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:glow-neon transition-shadow"
         >
           <UploadCloud className="size-4" />
-          {uploading ? "Enviando..." : "Enviar PDF"}
+          {uploading ? 'Enviando...' : 'Enviar PDF'}
         </button>
         <input
           ref={inputRef}
@@ -135,7 +133,7 @@ function CurriculosPage() {
             <article
               key={item.id}
               className={`rounded-2xl border p-5 bg-card/30 backdrop-blur-xl transition-colors ${
-                isActive ? "border-primary/50" : "border-border"
+                isActive ? 'border-primary/50' : 'border-border'
               }`}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -154,7 +152,9 @@ function CurriculosPage() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {(item.fileSize / 1024).toFixed(1)} KB
-                      {item.createdAt ? ` · ${new Date(item.createdAt).toLocaleDateString("pt-BR")}` : ""}
+                      {item.createdAt
+                        ? ` · ${new Date(item.createdAt).toLocaleDateString('pt-BR')}`
+                        : ''}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground truncate">{item.url}</div>
                   </div>
@@ -168,13 +168,13 @@ function CurriculosPage() {
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest disabled:opacity-60"
                   >
                     <CheckCircle2 className="size-3.5" />
-                    {isActive ? "Em uso" : isBusy ? "Salvando..." : "Usar este"}
+                    {isActive ? 'Em uso' : isBusy ? 'Salvando...' : 'Usar este'}
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       navigator.clipboard.writeText(item.url);
-                      toast.success("URL copiada.");
+                      toast.success('URL copiada.');
                     }}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-xs font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
                   >

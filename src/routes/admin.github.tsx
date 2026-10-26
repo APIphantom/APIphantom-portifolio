@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
 import {
   Github,
   Search,
@@ -9,11 +9,11 @@ import {
   Loader2,
   ExternalLink,
   AlertCircle,
-} from "lucide-react";
-import { useSettings, useProjects, slugify } from "@/lib/projects-store";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { useSettings, useProjects, slugify } from '@/lib/projects-store';
+import { toast } from 'sonner';
 
-export const Route = createFileRoute("/admin/github")({
+export const Route = createFileRoute('/admin/github')({
   component: GitHubImportPage,
 });
 
@@ -34,24 +34,24 @@ type Repo = {
 };
 
 function GitHubImportPage() {
-  const { settings, update } = useSettings();
+  const { settings, update } = useSettings({ includeSecrets: true });
   const { addProject } = useProjects();
   const [repos, setRepos] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(false);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState('');
   const [selected, setSelected] = useState<Repo | null>(null);
-  const [readme, setReadme] = useState<string>("");
+  const [readme, setReadme] = useState<string>('');
 
   const headers = (): HeadersInit =>
     settings.githubToken
-      ? { Authorization: `Bearer ${settings.githubToken}`, Accept: "application/vnd.github+json" }
-      : { Accept: "application/vnd.github+json" };
+      ? { Authorization: `Bearer ${settings.githubToken}`, Accept: 'application/vnd.github+json' }
+      : { Accept: 'application/vnd.github+json' };
 
   const fetchRepos = async () => {
     setLoading(true);
     try {
       const url = settings.githubToken
-        ? "https://api.github.com/user/repos?sort=updated&per_page=100"
+        ? 'https://api.github.com/user/repos?sort=updated&per_page=100'
         : `https://api.github.com/users/${settings.githubUsername}/repos?sort=updated&per_page=100`;
       const r = await fetch(url, { headers: headers() });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -59,7 +59,7 @@ function GitHubImportPage() {
       setRepos(data);
       toast.success(`${data.length} repositórios carregados`);
     } catch (e) {
-      toast.error("Falha ao buscar repositórios. Verifique token/usuário.");
+      toast.error('Falha ao buscar repositórios. Verifique token/usuário.');
     } finally {
       setLoading(false);
     }
@@ -67,14 +67,14 @@ function GitHubImportPage() {
 
   const loadReadme = async (repo: Repo) => {
     setSelected(repo);
-    setReadme("");
+    setReadme('');
     try {
       const r = await fetch(`https://api.github.com/repos/${repo.full_name}/readme`, {
         headers: headers(),
       });
       if (r.ok) {
         const j = await r.json();
-        setReadme(atob(j.content.replace(/\n/g, "")));
+        setReadme(atob(j.content.replace(/\n/g, '')));
       }
     } catch {}
   };
@@ -83,16 +83,16 @@ function GitHubImportPage() {
     let topics = repo.topics ?? [];
     if (topics.length === 0 && repo.language) topics = [repo.language];
     addProject({
-      title: repo.name.replace(/-/g, " ").toUpperCase(),
+      title: repo.name.replace(/-/g, ' ').toUpperCase(),
       slug: slugify(repo.name),
-      description: repo.description ?? "",
+      description: repo.description ?? '',
       longDescription: readme.slice(0, 800),
-      image: "",
+      image: '',
       tech: topics.length ? topics : repo.language ? [repo.language] : [],
-      category: "web",
+      category: 'web',
       github: repo.html_url,
-      demo: repo.homepage ?? "",
-      publication: { status: "draft", visibility: "public" },
+      demo: repo.homepage ?? '',
+      publication: { status: 'draft', visibility: 'public' },
     });
     toast.success(`"${repo.name}" importado como rascunho`);
     setSelected(null);
@@ -116,13 +116,13 @@ function GitHubImportPage() {
         <div className="grid sm:grid-cols-2 gap-3">
           <Input
             label="GitHub Username"
-            value={settings.githubUsername ?? ""}
+            value={settings.githubUsername ?? ''}
             onChange={(v) => update({ githubUsername: v })}
             placeholder="adriano"
           />
           <Input
             label="Personal Access Token (opcional p/ privados)"
-            value={settings.githubToken ?? ""}
+            value={settings.githubToken ?? ''}
             onChange={(v) => update({ githubToken: v })}
             placeholder="ghp_..."
             type="password"
@@ -134,7 +134,7 @@ function GitHubImportPage() {
             disabled={loading || (!settings.githubUsername && !settings.githubToken)}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:glow-neon transition-shadow disabled:opacity-40"
           >
-            {loading ? <Loader2 className="size-4 animate-spin" /> : <Github className="size-4" />}{" "}
+            {loading ? <Loader2 className="size-4 animate-spin" /> : <Github className="size-4" />}{' '}
             Buscar repositórios
           </button>
           {!settings.githubToken && (
@@ -158,12 +158,12 @@ function GitHubImportPage() {
           </div>
 
           <div className="grid lg:grid-cols-[1fr_1.2fr] gap-6">
-            <div className="rounded-2xl border border-border bg-card/30 backdrop-blur-xl divide-y divide-border max-h-[600px] overflow-y-auto">
+            <div className="rounded-2xl border border-border bg-card/30 backdrop-blur-xl divide-y divide-border max-h-[600px] overflow-y-auto scrollbar-none">
               {filtered.map((r) => (
                 <button
                   key={r.id}
                   onClick={() => loadReadme(r)}
-                  className={`w-full text-left p-4 hover:bg-muted/10 transition-colors ${selected?.id === r.id ? "bg-primary/5" : ""}`}
+                  className={`w-full text-left p-4 hover:bg-muted/10 transition-colors ${selected?.id === r.id ? 'bg-primary/5' : ''}`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <div className="font-bold truncate">{r.name}</div>
@@ -174,7 +174,7 @@ function GitHubImportPage() {
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                    {r.description ?? "Sem descrição."}
+                    {r.description ?? 'Sem descrição.'}
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                     {r.language && <span>● {r.language}</span>}
@@ -189,7 +189,7 @@ function GitHubImportPage() {
               ))}
             </div>
 
-            <div className="rounded-2xl border border-border bg-card/30 backdrop-blur-xl p-5 space-y-3 max-h-[600px] overflow-y-auto">
+            <div className="rounded-2xl border border-border bg-card/30 backdrop-blur-xl p-5 space-y-3 max-h-[600px] overflow-y-auto scrollbar-none">
               {selected ? (
                 <>
                   <div className="flex items-start justify-between gap-3">
@@ -230,8 +230,8 @@ function GitHubImportPage() {
                     <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
                       README
                     </div>
-                    <pre className="text-xs whitespace-pre-wrap text-muted-foreground font-mono leading-relaxed max-h-80 overflow-y-auto">
-                      {readme || "Sem README disponível."}
+                    <pre className="text-xs whitespace-pre-wrap text-muted-foreground font-mono leading-relaxed">
+                      {readme || 'Sem README disponível.'}
                     </pre>
                   </div>
                 </>
@@ -253,7 +253,7 @@ function Input({
   value,
   onChange,
   placeholder,
-  type = "text",
+  type = 'text',
 }: {
   label: string;
   value: string;

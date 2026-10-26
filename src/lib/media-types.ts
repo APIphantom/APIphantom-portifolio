@@ -1,19 +1,19 @@
-export type MediaType = "image" | "video" | "gif";
+export type MediaType = 'image' | 'video' | 'gif';
 
 export type MediaCategory =
-  | "thumbnail"
-  | "banner"
-  | "gallery"
-  | "cover"
-  | "demo"
-  | "mobile"
-  | "desktop"
-  | "logo"
-  | "before_after"
-  | "hero_video"
-  | "tablet"
-  | "misc"
-  | "document";
+  | 'thumbnail'
+  | 'banner'
+  | 'gallery'
+  | 'cover'
+  | 'demo'
+  | 'mobile'
+  | 'desktop'
+  | 'logo'
+  | 'before_after'
+  | 'hero_video'
+  | 'tablet'
+  | 'misc'
+  | 'document';
 
 export type ProjectMedia = {
   id: string;

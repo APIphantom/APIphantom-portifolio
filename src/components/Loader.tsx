@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export function Loader() {
   const [done, setDone] = useState(false);
@@ -26,14 +26,14 @@ export function Loader() {
       {!done && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, y: "-100%" }}
+          exit={{ opacity: 0, y: '-100%' }}
           transition={{ duration: 0.7, ease: [0.83, 0, 0.17, 1] }}
           className="fixed inset-0 z-[10001] bg-background flex items-center justify-center overflow-hidden"
         >
           <div className="absolute inset-0 grid-bg opacity-50" />
           <div
             className="absolute inset-x-0 top-0 h-px bg-primary"
-            style={{ transform: `scaleX(${pct / 100})`, transformOrigin: "left" }}
+            style={{ transform: `scaleX(${pct / 100})`, transformOrigin: 'left' }}
           />
 
           <div className="relative text-center px-6">
@@ -49,7 +49,7 @@ export function Loader() {
             </motion.h1>
             <div className="mt-6 flex items-center justify-center gap-3 text-xs tabular-nums tracking-widest text-muted-foreground">
               <span className="size-1.5 bg-primary animate-blink" />
-              <span>{String(pct).padStart(3, "0")}%</span>
+              <span>{String(pct).padStart(3, '0')}%</span>
               <span>—</span>
               <span>booting interface</span>
             </div>

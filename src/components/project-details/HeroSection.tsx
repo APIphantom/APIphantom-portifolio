@@ -1,9 +1,9 @@
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { FloatingMockup } from "./FloatingMockup";
-import { ProjectMetrics } from "./ProjectMetrics";
-import type { MetaPill } from "./types";
-import type { VideoMediaOptions } from "@/lib/project-media";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import { FloatingMockup } from './FloatingMockup';
+import { ProjectMetrics } from './ProjectMetrics';
+import type { MetaPill } from './types';
+import type { VideoMediaOptions } from '@/lib/project-media';
 
 type Props = {
   category: string;

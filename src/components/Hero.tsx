@@ -1,16 +1,17 @@
-import { motion } from "framer-motion";
-import { ArrowDown, Download, Mail } from "lucide-react";
-import { MagneticButton } from "./MagneticButton";
-import { useSettings } from "@/lib/projects-store";
+import { motion } from 'framer-motion';
+import { ArrowDown, Download, Mail } from 'lucide-react';
+import { MagneticButton } from './MagneticButton';
+import { useProjects, useSettings } from '@/lib/projects-store';
 
-const TITLE_TOP = "ADRIANO".split("");
-const TITLE_BOT = "DEV".split("");
+const TITLE_TOP = 'ADRIANO'.split('');
+const TITLE_BOT = 'DEV'.split('');
 
 export function Hero() {
   const { settings } = useSettings();
-  const displayName = settings.name || "Adriano Oliveira";
-  const role = settings.role || "Desenvolvedor Front-End Júnior";
-  const cvHref = settings.cvUrl || "/cv-adriano-oliveira.pdf";
+  const { projects } = useProjects({ publishedOnly: true });
+  const displayName = settings.name || 'Adriano Oliveira';
+  const role = settings.role || 'Desenvolvedor Front-End Júnior';
+  const cvHref = settings.cvUrl || '/cv-adriano-oliveira.pdf';
   const isExternalCv = /^https?:\/\//i.test(cvHref);
 
   return (
@@ -26,7 +27,7 @@ export function Hero() {
         <motion.div
           initial={{ rotate: 0 }}
           animate={{ rotate: 360 }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
           className="absolute -right-40 top-1/3 w-[700px] h-[700px] rounded-full border border-primary/20"
         >
           <div className="absolute inset-10 rounded-full border border-primary/10" />
@@ -34,7 +35,7 @@ export function Hero() {
         </motion.div>
         <motion.div
           animate={{ opacity: [0.35, 0.65, 0.35] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute -left-32 bottom-10 w-[420px] h-[420px] rounded-full bg-primary/20 blur-[130px]"
         />
       </div>
@@ -49,7 +50,7 @@ export function Hero() {
           >
             <span className="size-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
             <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              Disponível para oportunidades — 2026
+              Disponível para oportunidades
             </span>
           </motion.div>
 
@@ -61,7 +62,7 @@ export function Hero() {
               {TITLE_TOP.map((l, i) => (
                 <motion.span
                   key={`t-${i}`}
-                  initial={{ y: "110%", opacity: 0 }}
+                  initial={{ y: '110%', opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.7, delay: 0.1 + i * 0.05, ease: [0.65, 0, 0.35, 1] }}
                   className="inline-block"
@@ -74,7 +75,7 @@ export function Hero() {
               {TITLE_BOT.map((l, i) => (
                 <motion.span
                   key={`b-${i}`}
-                  initial={{ y: "110%", opacity: 0 }}
+                  initial={{ y: '110%', opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.7, delay: 0.45 + i * 0.05, ease: [0.65, 0, 0.35, 1] }}
                   className="inline-block"
@@ -83,7 +84,7 @@ export function Hero() {
                 </motion.span>
               ))}
               <motion.span
-                initial={{ y: "110%", opacity: 0 }}
+                initial={{ y: '110%', opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.7, delay: 0.75 }}
                 className="inline-block"
@@ -101,9 +102,9 @@ export function Hero() {
           >
             <span className="text-foreground font-medium">
               Sou {displayName}, {role}.
-            </span>{" "}
+            </span>{' '}
             {settings.bio ||
-              "Transformo ideias em interfaces modernas, responsivas e acessíveis com React, Next.js, TypeScript e Tailwind — focado em performance e boas práticas."}
+              'Transformo ideias em interfaces modernas, responsivas e acessíveis com React, Next.js, TypeScript e Tailwind — focado em performance e boas práticas.'}
           </motion.p>
 
           <motion.div
@@ -114,7 +115,7 @@ export function Hero() {
           >
             <MagneticButton
               onClick={() =>
-                document.getElementById("projetos")?.scrollIntoView({ behavior: "smooth" })
+                document.getElementById('projetos')?.scrollIntoView({ behavior: 'smooth' })
               }
               className="group inline-flex items-center gap-2 px-6 py-4 bg-primary text-primary-foreground rounded-full font-bold uppercase tracking-widest text-xs hover:glow-neon transition-all min-h-11"
             >
@@ -127,8 +128,8 @@ export function Hero() {
             <a
               href={cvHref}
               download={isExternalCv ? undefined : true}
-              target={isExternalCv ? "_blank" : undefined}
-              rel={isExternalCv ? "noreferrer" : undefined}
+              target={isExternalCv ? '_blank' : undefined}
+              rel={isExternalCv ? 'noreferrer' : undefined}
               data-cursor="hover"
               className="inline-flex items-center gap-2 px-6 py-4 border border-border rounded-full font-bold uppercase tracking-widest text-xs hover:border-primary hover:text-primary transition-colors min-h-11"
             >
@@ -156,10 +157,13 @@ export function Hero() {
           </div>
           <div className="grid grid-cols-2 gap-px bg-border rounded-lg overflow-hidden">
             {[
-              { k: "React", v: "Stack principal" },
-              { k: "TS", v: "Tipagem forte" },
-              { k: "10+", v: "Projetos pessoais" },
-              { k: "24/7", v: "Aprendendo" },
+              { k: 'React', v: 'Stack principal' },
+              { k: 'TS', v: 'Tipagem forte' },
+              {
+                k: String(projects.length),
+                v: projects.length === 1 ? 'Projeto publicado' : 'Projetos publicados',
+              },
+              { k: 'Contínuo', v: 'Aprendizado' },
             ].map((s) => (
               <div key={s.v} className="bg-card p-4">
                 <div className="text-3xl font-black text-primary">{s.k}</div>
@@ -173,7 +177,7 @@ export function Hero() {
       <div className="absolute bottom-0 left-0 right-0 border-y border-border bg-background/40 backdrop-blur-sm overflow-hidden">
         <div className="flex animate-marquee whitespace-nowrap py-3">
           {Array.from({ length: 2 }).flatMap((_, k) =>
-            ["REACT", "TAILWIND", "TYPESCRIPT", "NEXT.JS", "VITE", "FIGMA", "GIT", "REST API"].map(
+            ['REACT', 'TAILWIND', 'TYPESCRIPT', 'NEXT.JS', 'VITE', 'FIGMA', 'GIT', 'REST API'].map(
               (t, i) => (
                 <span
                   key={`${k}-${i}`}

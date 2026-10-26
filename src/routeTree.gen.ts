@@ -14,7 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as ProjetoSlugRouteImport } from './routes/projeto.$slug'
+import { Route as ProjetosSlugRouteImport } from './routes/projetos.$slug'
 import { Route as AdminTecnologiasRouteImport } from './routes/admin.tecnologias'
 import { Route as AdminStorylineRouteImport } from './routes/admin.storyline'
 import { Route as AdminProjetosRouteImport } from './routes/admin.projetos'
@@ -22,6 +22,8 @@ import { Route as AdminMidiasRouteImport } from './routes/admin.midias'
 import { Route as AdminGithubRouteImport } from './routes/admin.github'
 import { Route as AdminCurriculosRouteImport } from './routes/admin.curriculos'
 import { Route as AdminConfiguracoesRouteImport } from './routes/admin.configuracoes'
+import { Route as AdminProjetosNovoRouteImport } from './routes/admin.projetos.novo'
+import { Route as AdminProjetosIdEditarRouteImport } from './routes/admin.projetos.$id.editar'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -48,9 +50,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const ProjetoSlugRoute = ProjetoSlugRouteImport.update({
-  id: '/projeto/$slug',
-  path: '/projeto/$slug',
+const ProjetosSlugRoute = ProjetosSlugRouteImport.update({
+  id: '/projetos/$slug',
+  path: '/projetos/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminTecnologiasRoute = AdminTecnologiasRouteImport.update({
@@ -88,6 +90,16 @@ const AdminConfiguracoesRoute = AdminConfiguracoesRouteImport.update({
   path: '/configuracoes',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminProjetosNovoRoute = AdminProjetosNovoRouteImport.update({
+  id: '/novo',
+  path: '/novo',
+  getParentRoute: () => AdminProjetosRoute,
+} as any)
+const AdminProjetosIdEditarRoute = AdminProjetosIdEditarRouteImport.update({
+  id: '/$id/editar',
+  path: '/$id/editar',
+  getParentRoute: () => AdminProjetosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -98,11 +110,13 @@ export interface FileRoutesByFullPath {
   '/admin/curriculos': typeof AdminCurriculosRoute
   '/admin/github': typeof AdminGithubRoute
   '/admin/midias': typeof AdminMidiasRoute
-  '/admin/projetos': typeof AdminProjetosRoute
+  '/admin/projetos': typeof AdminProjetosRouteWithChildren
   '/admin/storyline': typeof AdminStorylineRoute
   '/admin/tecnologias': typeof AdminTecnologiasRoute
-  '/projeto/$slug': typeof ProjetoSlugRoute
+  '/projetos/$slug': typeof ProjetosSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/projetos/novo': typeof AdminProjetosNovoRoute
+  '/admin/projetos/$id/editar': typeof AdminProjetosIdEditarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -112,11 +126,13 @@ export interface FileRoutesByTo {
   '/admin/curriculos': typeof AdminCurriculosRoute
   '/admin/github': typeof AdminGithubRoute
   '/admin/midias': typeof AdminMidiasRoute
-  '/admin/projetos': typeof AdminProjetosRoute
+  '/admin/projetos': typeof AdminProjetosRouteWithChildren
   '/admin/storyline': typeof AdminStorylineRoute
   '/admin/tecnologias': typeof AdminTecnologiasRoute
-  '/projeto/$slug': typeof ProjetoSlugRoute
+  '/projetos/$slug': typeof ProjetosSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/projetos/novo': typeof AdminProjetosNovoRoute
+  '/admin/projetos/$id/editar': typeof AdminProjetosIdEditarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -128,11 +144,13 @@ export interface FileRoutesById {
   '/admin/curriculos': typeof AdminCurriculosRoute
   '/admin/github': typeof AdminGithubRoute
   '/admin/midias': typeof AdminMidiasRoute
-  '/admin/projetos': typeof AdminProjetosRoute
+  '/admin/projetos': typeof AdminProjetosRouteWithChildren
   '/admin/storyline': typeof AdminStorylineRoute
   '/admin/tecnologias': typeof AdminTecnologiasRoute
-  '/projeto/$slug': typeof ProjetoSlugRoute
+  '/projetos/$slug': typeof ProjetosSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/projetos/novo': typeof AdminProjetosNovoRoute
+  '/admin/projetos/$id/editar': typeof AdminProjetosIdEditarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -148,8 +166,10 @@ export interface FileRouteTypes {
     | '/admin/projetos'
     | '/admin/storyline'
     | '/admin/tecnologias'
-    | '/projeto/$slug'
+    | '/projetos/$slug'
     | '/admin/'
+    | '/admin/projetos/novo'
+    | '/admin/projetos/$id/editar'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -162,8 +182,10 @@ export interface FileRouteTypes {
     | '/admin/projetos'
     | '/admin/storyline'
     | '/admin/tecnologias'
-    | '/projeto/$slug'
+    | '/projetos/$slug'
     | '/admin'
+    | '/admin/projetos/novo'
+    | '/admin/projetos/$id/editar'
   id:
     | '__root__'
     | '/'
@@ -177,8 +199,10 @@ export interface FileRouteTypes {
     | '/admin/projetos'
     | '/admin/storyline'
     | '/admin/tecnologias'
-    | '/projeto/$slug'
+    | '/projetos/$slug'
     | '/admin/'
+    | '/admin/projetos/novo'
+    | '/admin/projetos/$id/editar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,7 +210,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  ProjetoSlugRoute: typeof ProjetoSlugRoute
+  ProjetosSlugRoute: typeof ProjetosSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -226,11 +250,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/projeto/$slug': {
-      id: '/projeto/$slug'
-      path: '/projeto/$slug'
-      fullPath: '/projeto/$slug'
-      preLoaderRoute: typeof ProjetoSlugRouteImport
+    '/projetos/$slug': {
+      id: '/projetos/$slug'
+      path: '/projetos/$slug'
+      fullPath: '/projetos/$slug'
+      preLoaderRoute: typeof ProjetosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/tecnologias': {
@@ -282,15 +306,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConfiguracoesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/projetos/novo': {
+      id: '/admin/projetos/novo'
+      path: '/novo'
+      fullPath: '/admin/projetos/novo'
+      preLoaderRoute: typeof AdminProjetosNovoRouteImport
+      parentRoute: typeof AdminProjetosRoute
+    }
+    '/admin/projetos/$id/editar': {
+      id: '/admin/projetos/$id/editar'
+      path: '/$id/editar'
+      fullPath: '/admin/projetos/$id/editar'
+      preLoaderRoute: typeof AdminProjetosIdEditarRouteImport
+      parentRoute: typeof AdminProjetosRoute
+    }
   }
 }
+
+interface AdminProjetosRouteChildren {
+  AdminProjetosNovoRoute: typeof AdminProjetosNovoRoute
+  AdminProjetosIdEditarRoute: typeof AdminProjetosIdEditarRoute
+}
+
+const AdminProjetosRouteChildren: AdminProjetosRouteChildren = {
+  AdminProjetosNovoRoute: AdminProjetosNovoRoute,
+  AdminProjetosIdEditarRoute: AdminProjetosIdEditarRoute,
+}
+
+const AdminProjetosRouteWithChildren = AdminProjetosRoute._addFileChildren(
+  AdminProjetosRouteChildren,
+)
 
 interface AdminRouteChildren {
   AdminConfiguracoesRoute: typeof AdminConfiguracoesRoute
   AdminCurriculosRoute: typeof AdminCurriculosRoute
   AdminGithubRoute: typeof AdminGithubRoute
   AdminMidiasRoute: typeof AdminMidiasRoute
-  AdminProjetosRoute: typeof AdminProjetosRoute
+  AdminProjetosRoute: typeof AdminProjetosRouteWithChildren
   AdminStorylineRoute: typeof AdminStorylineRoute
   AdminTecnologiasRoute: typeof AdminTecnologiasRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -301,7 +353,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCurriculosRoute: AdminCurriculosRoute,
   AdminGithubRoute: AdminGithubRoute,
   AdminMidiasRoute: AdminMidiasRoute,
-  AdminProjetosRoute: AdminProjetosRoute,
+  AdminProjetosRoute: AdminProjetosRouteWithChildren,
   AdminStorylineRoute: AdminStorylineRoute,
   AdminTecnologiasRoute: AdminTecnologiasRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -314,7 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  ProjetoSlugRoute: ProjetoSlugRoute,
+  ProjetosSlugRoute: ProjetosSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

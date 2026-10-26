@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search } from 'lucide-react';
 
 type Props = {
   title: string;
@@ -13,7 +13,9 @@ export function ResearchSection({ title, text }: Props) {
         <h3 className="text-sm font-bold uppercase tracking-[0.2em]">{title}</h3>
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{text}</p>
-      <button className="mt-4 text-xs uppercase tracking-[0.2em] text-primary hover:text-primary/80">Saiba mais</button>
+      <button className="mt-4 text-xs uppercase tracking-[0.2em] text-primary hover:text-primary/80">
+        Saiba mais
+      </button>
     </article>
   );
 }

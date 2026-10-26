@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { Plus, Github, ArrowUpRight, FolderKanban, Image as ImageIcon, Cpu } from "lucide-react";
-import { useProjects, useMedia, useTechnologies, useSettings } from "@/lib/projects-store";
-import { ProjectMedia } from "@/components/ProjectMedia";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { motion } from 'framer-motion';
+import { Plus, Github, ArrowUpRight, FolderKanban, Image as ImageIcon, Cpu } from 'lucide-react';
+import { useProjects, useMedia, useTechnologies, useSettings } from '@/lib/projects-store';
+import { ProjectMedia } from '@/components/ProjectMedia';
 
-export const Route = createFileRoute("/admin/")({
+export const Route = createFileRoute('/admin/')({
   component: AdminHome,
 });
 
@@ -15,13 +15,13 @@ function AdminHome() {
   const { settings } = useSettings();
 
   const cards = [
-    { label: "Projetos", value: projects.length, to: "/admin/projetos", icon: FolderKanban },
-    { label: "Tecnologias", value: tech.length, to: "/admin/tecnologias", icon: Cpu },
-    { label: "Mídias", value: media.length, to: "/admin/midias", icon: ImageIcon },
+    { label: 'Projetos', value: projects.length, to: '/admin/projetos', icon: FolderKanban },
+    { label: 'Tecnologias', value: tech.length, to: '/admin/tecnologias', icon: Cpu },
+    { label: 'Mídias', value: media.length, to: '/admin/midias', icon: ImageIcon },
   ];
 
   const recent = [...projects]
-    .sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""))
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
     .slice(0, 5);
 
   return (
@@ -95,7 +95,11 @@ function AdminHome() {
           <h2 className="text-sm uppercase tracking-widest text-muted-foreground">
             Projetos recentes
           </h2>
-          <Link to="/admin/projetos" className="text-xs text-primary hover:underline">
+          <Link
+            to="/admin/projetos"
+            search={{ new: undefined }}
+            className="text-xs text-primary hover:underline"
+          >
             Ver todos →
           </Link>
         </div>
@@ -104,6 +108,7 @@ function AdminHome() {
             <Link
               key={p.id}
               to="/admin/projetos"
+              search={{ new: undefined }}
               className="flex items-center gap-4 p-4 hover:bg-muted/20 transition-colors group"
             >
               <div className="size-10 rounded-md overflow-hidden bg-muted shrink-0">
@@ -118,10 +123,10 @@ function AdminHome() {
               <div className="flex-1 min-w-0">
                 <div className="font-bold truncate">{p.title}</div>
                 <div className="text-xs text-muted-foreground truncate">
-                  {p.tech.slice(0, 4).join(" · ")}
+                  {p.tech.slice(0, 4).join(' · ')}
                 </div>
               </div>
-              <StatusPill status={p.publication?.status ?? "draft"} />
+              <StatusPill status={p.publication?.status ?? 'draft'} />
             </Link>
           ))}
           {recent.length === 0 && (
@@ -137,14 +142,14 @@ function AdminHome() {
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
-    published: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    draft: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    archived: "bg-muted text-muted-foreground border-border",
+    published: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    draft: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    archived: 'bg-muted text-muted-foreground border-border',
   };
   const label: Record<string, string> = {
-    published: "Publicado",
-    draft: "Rascunho",
-    archived: "Arquivado",
+    published: 'Publicado',
+    draft: 'Rascunho',
+    archived: 'Arquivado',
   };
   return (
     <span
