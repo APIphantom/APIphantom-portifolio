@@ -68,7 +68,7 @@ export function TechnologyBrandIcon({
 
   return (
     <img
-      src={`https://cdn.simpleicons.org/${slug}`}
+      src={`https://cdn.simpleicons.org/${slug}${slug === 'nextdotjs' ? '/FFFFFF' : ''}`}
       alt=""
       aria-hidden="true"
       loading="lazy"
