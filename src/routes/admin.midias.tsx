@@ -141,7 +141,7 @@ function MidiasPage() {
             {items.length} arquivos · Supabase Storage{uploading ? ' · enviando…' : ''}
           </p>
         <p className="mt-2 max-w-xl text-xs text-muted-foreground">
-          Para vídeos, prefira MP4 (H.264 + AAC), até 120 MB. O upload usa blocos e mostra o
+          Aceita MP4 (H.264 + AAC) e WebM (VP9 + Opus), até 120 MB. O upload usa blocos e mostra o
           progresso real.
         </p>
         </div>
@@ -155,7 +155,7 @@ function MidiasPage() {
           ref={ref}
           type="file"
           multiple
-          accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,.mp4,video/webm,.webm,video/quicktime,.mov,video/x-msvideo,.avi,video/x-matroska,.mkv"
           hidden
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />

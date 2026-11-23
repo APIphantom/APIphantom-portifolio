@@ -164,8 +164,8 @@ export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyM
           apresentado em um player próprio, antes da galeria.
         </p>
         <p className="-mt-4 mb-6 text-xs text-muted-foreground">
-          Vídeos: prefira MP4 com H.264 e AAC, até 120 MB. O envio usa blocos e tenta novamente em
-          caso de falhas temporárias de rede.
+          Vídeos: MP4 com H.264/AAC ou WebM com VP9/Opus, até 120 MB. O envio usa blocos e tenta
+          novamente em caso de falhas temporárias de rede.
         </p>
       </div>
 
@@ -234,7 +234,7 @@ export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyM
               ref={fileInputRef}
               type="file"
               multiple
-              accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,.mp4,video/webm,.webm,video/quicktime,.mov,video/x-msvideo,.avi,video/x-matroska,.mkv"
               onChange={handleUpload}
               className="hidden"
             />
