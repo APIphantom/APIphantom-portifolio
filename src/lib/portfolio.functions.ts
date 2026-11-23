@@ -636,14 +636,16 @@ export const createMediaUpload = createServerFn({ method: 'POST' })
   .validator((d: unknown) => mediaUploadInput.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    // As Server Function já verificou a sessão e o papel admin. Use a chave
+    // de serviço para emitir o token de upload, evitando depender do RLS no
+    // endpoint TUS, que recebe apenas a chave assinada e a chave pública.
+    const sb = await admin();
     const path = getMediaUploadPath(data);
-    const signedResult = await context.supabase.storage
-      .from('media')
-      .createSignedUploadUrl(path);
+    const signedResult = await sb.storage.from('media').createSignedUploadUrl(path);
     if (signedResult.error) {
       throw new Error(`O Supabase negou a criação do upload: ${signedResult.error.message}`);
     }
-    const { data: pub } = context.supabase.storage.from('media').getPublicUrl(path);
+    const { data: pub } = sb.storage.from('media').getPublicUrl(path);
 
     return { path, token: signedResult.data.token, url: pub.publicUrl };
   });
@@ -655,6 +657,7 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    const sb = await admin();
 
     const mimeType = data.type.toLowerCase();
     const safeCategory = sanitizePathPart(data.category || data.folder || 'misc') || 'misc';
@@ -666,7 +669,7 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
 
     const fileName = data.storagePath.slice(expectedPrefix.length);
     try {
-      const listedFiles = await context.supabase.storage
+      const listedFiles = await sb.storage
         .from('media')
         .list(`${projectFolder}/${safeCategory}`, { limit: 100, search: fileName });
       if (listedFiles.error) throw new Error(listedFiles.error.message);
@@ -679,7 +682,7 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
 
       const row = {
         name: data.name,
-        url: context.supabase.storage.from('media').getPublicUrl(data.storagePath).data.publicUrl,
+        url: sb.storage.from('media').getPublicUrl(data.storagePath).data.publicUrl,
         storage_path: data.storagePath,
         type: mimeType,
         size: data.size,
@@ -697,11 +700,11 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
         sort_order: data.sortOrder ?? 0,
         updated_at: new Date().toISOString(),
       };
-      const inserted = await context.supabase.from('media').insert(row).select('*').single();
+      const inserted = await sb.from('media').insert(row).select('*').single();
       if (inserted.error) throw new Error(inserted.error.message);
       return rowToMedia(inserted.data);
     } catch (error) {
-      await context.supabase.storage.from('media').remove([data.storagePath]);
+      await sb.storage.from('media').remove([data.storagePath]);
       throw error;
     }
   });
