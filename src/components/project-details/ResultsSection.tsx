@@ -35,7 +35,7 @@ export function ResultsSection({ items }: Props) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="rounded-2xl border border-primary/35 bg-primary/[0.06] p-5 hover:border-primary/60 hover:shadow-[0_20px_55px_rgba(255,212,0,0.15)] transition-all"
+              className="rounded-2xl border border-primary/35 bg-primary/[0.06] p-5 hover:border-primary/60 hover:shadow-[0_20px_55px_rgba(var(--primary-rgb),0.15)] transition-all"
             >
               <div className="display text-5xl text-primary">
                 {item.value !== null ? (

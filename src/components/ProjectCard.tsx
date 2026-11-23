@@ -44,11 +44,12 @@ function ProjectCardBase({ project: p, index: i }: Props) {
           className="relative block overflow-hidden bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
           aria-label={`Abrir estudo de caso: ${p.title}`}
         >
-          <div className="aspect-[16/10] overflow-hidden">
+          <div className="relative aspect-[16/10] overflow-hidden">
             {imageUrl ? (
               <ProjectMedia
                 src={imageUrl}
                 alt={`Imagem de apresentação do projeto ${p.title}`}
+                containerClassName="size-full"
                 className="size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                 imageProps={{ loading: 'lazy' }}
                 videoOptions={{ muted: true, loop: true, playsInline: true, preload: 'metadata' }}

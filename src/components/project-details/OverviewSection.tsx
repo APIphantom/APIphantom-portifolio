@@ -39,7 +39,7 @@ export function OverviewSection({ summary, features }: Props) {
             {features.map((item) => (
               <div
                 key={item.title}
-                className="rounded-xl border border-border/70 bg-background/45 p-3 hover:border-primary/55 hover:shadow-[0_14px_38px_rgba(255,212,0,0.10)] transition-all"
+                className="rounded-xl border border-border/70 bg-background/45 p-3 hover:border-primary/55 hover:shadow-[0_14px_38px_rgba(var(--primary-rgb),0.10)] transition-all"
               >
                 <div className="flex items-center gap-2 text-primary mb-1">
                   <CircleDot className="size-3" />

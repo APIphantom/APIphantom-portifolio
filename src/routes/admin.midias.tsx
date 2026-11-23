@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { UploadCloud, Search, Trash2, Copy, X } from 'lucide-react';
-import { useMedia } from '@/lib/projects-store';
+import { useMedia, useProjects } from '@/lib/projects-store';
 import { toast } from 'sonner';
 import { ProjectMedia } from '@/components/ProjectMedia';
 
@@ -10,7 +10,11 @@ export const Route = createFileRoute('/admin/midias')({
 });
 
 function MidiasPage() {
-  const { items, addAsync, remove, uploading } = useMedia();
+  const [projectId, setProjectId] = useState('');
+  const { projects } = useProjects();
+  const { items, addAsync, remove, uploading } = useMedia({
+    projectId: projectId || undefined,
+  });
   const [q, setQ] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
   const ref = useRef<HTMLInputElement>(null);
@@ -20,6 +24,7 @@ function MidiasPage() {
       name: string;
       size: number;
       file: File;
+      projectId?: string;
       progress: number;
       status: 'queued' | 'uploading' | 'done' | 'error' | 'canceled';
       error?: string;
@@ -69,6 +74,7 @@ function MidiasPage() {
           size: next.file.size,
           file: next.file,
           category: 'misc',
+          projectId: next.projectId,
         });
 
         setTasks((prev) =>
@@ -120,6 +126,7 @@ function MidiasPage() {
           name: f.name,
           size: f.size,
           file: f,
+          projectId: projectId || undefined,
           progress: 0,
           status: 'queued',
         },
@@ -163,6 +170,28 @@ function MidiasPage() {
           placeholder="Buscar mídia..."
           className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-card/40 border border-border text-sm focus:border-primary outline-none"
         />
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <label
+          htmlFor="media-project-filter"
+          className="text-xs uppercase tracking-widest text-muted-foreground"
+        >
+          Projeto
+        </label>
+        <select
+          id="media-project-filter"
+          value={projectId}
+          onChange={(event) => setProjectId(event.target.value)}
+          className="w-full rounded-lg border border-border bg-card/40 px-3 py-2.5 text-sm outline-none focus:border-primary sm:max-w-md"
+        >
+          <option value="">Todos os projetos</option>
+          {projects.map((project) => (
+            <option key={project.id} value={project.id}>
+              {project.title || project.slug}
+            </option>
+          ))}
+        </select>
       </div>
 
       {tasks.length > 0 && (

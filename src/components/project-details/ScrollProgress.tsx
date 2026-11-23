@@ -11,7 +11,7 @@ export function ScrollProgress() {
 
   return (
     <motion.div
-      className="fixed left-0 top-0 z-[80] h-0.5 w-full origin-left bg-primary shadow-[0_0_22px_rgba(255,212,0,0.55)]"
+      className="fixed left-0 top-0 z-[80] h-0.5 w-full origin-left bg-primary shadow-[0_0_22px_rgba(var(--primary-rgb),0.55)]"
       style={{ scaleX: smooth }}
     />
   );

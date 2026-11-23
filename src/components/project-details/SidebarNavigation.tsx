@@ -59,7 +59,7 @@ export function SidebarNavigation({ items }: Props) {
                 <motion.span
                   layoutId="activeDot"
                   transition={{ duration: reducedMotion ? 0.01 : 0.25 }}
-                  className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(255,212,0,0.8)]"
+                  className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.8)]"
                 />
               )}
             </a>

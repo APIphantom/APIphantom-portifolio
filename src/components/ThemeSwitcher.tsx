@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 export type ThemeKey = 'neo-yellow' | 'acid-lime' | 'tokyo-night' | 'monochrome';
 
 const KEY = 'stvx.theme';
+const THEME_CHANGE_EVENT = 'stvx:theme-change';
 
 export const THEMES: { key: ThemeKey; label: string; swatch: string }[] = [
   { key: 'neo-yellow', label: 'Neo Yellow', swatch: '#FFD400' },
@@ -17,15 +18,36 @@ function apply(t: ThemeKey) {
   else root.setAttribute('data-theme', t);
 }
 
+function isThemeKey(value: string | null): value is ThemeKey {
+  return THEMES.some((theme) => theme.key === value);
+}
+
+function readTheme(): ThemeKey {
+  try {
+    const saved = localStorage.getItem(KEY);
+    return isThemeKey(saved) ? saved : 'neo-yellow';
+  } catch {
+    return 'neo-yellow';
+  }
+}
+
 export function useTheme() {
   const [theme, setTheme] = useState<ThemeKey>('neo-yellow');
 
   useEffect(() => {
-    try {
-      const t = (localStorage.getItem(KEY) as ThemeKey | null) ?? 'neo-yellow';
+    const syncTheme = () => {
+      const t = readTheme();
       setTheme(t);
       apply(t);
-    } catch {}
+    };
+
+    syncTheme();
+    window.addEventListener(THEME_CHANGE_EVENT, syncTheme);
+    window.addEventListener('storage', syncTheme);
+    return () => {
+      window.removeEventListener(THEME_CHANGE_EVENT, syncTheme);
+      window.removeEventListener('storage', syncTheme);
+    };
   }, []);
 
   const set = (t: ThemeKey) => {
@@ -34,6 +56,7 @@ export function useTheme() {
     try {
       localStorage.setItem(KEY, t);
     } catch {}
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   };
 
   return { theme, setTheme: set };
@@ -50,6 +73,7 @@ export function ThemeSwitcher() {
           aria-label={t.label}
           title={t.label}
           data-cursor="hover"
+          aria-pressed={theme === t.key}
           className={`size-5 rounded-full border transition-all ${
             theme === t.key ? 'border-foreground scale-110' : 'border-border hover:scale-110'
           }`}

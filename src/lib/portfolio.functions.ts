@@ -512,18 +512,19 @@ export const deleteTechnology = createServerFn({ method: 'POST' })
   });
 
 /* ===================== MEDIA ===================== */
+const listMediaInput = z.object({ projectId: z.string().uuid().optional() });
+
 export const listMedia = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator((d: unknown) => listMediaInput.parse(d ?? {}))
+  .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const sb = await admin();
-    const { data, error } = await sb
-      .from('media')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(500);
+    let query = sb.from('media').select('*').order('created_at', { ascending: false }).limit(500);
+    if (data.projectId) query = query.eq('project_id', data.projectId);
+    const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
-    return (data ?? []).map(rowToMedia);
+    return (rows ?? []).map(rowToMedia);
   });
 
 const listProjectMediaInput = z.object({

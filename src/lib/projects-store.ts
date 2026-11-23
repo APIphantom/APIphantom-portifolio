@@ -242,15 +242,15 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-export function useMedia(options?: { includeLibrary?: boolean }) {
+export function useMedia(options?: { includeLibrary?: boolean; projectId?: string }) {
   const qc = useQc();
   const list = useServerFn(listMedia);
   const up = useServerFn(uploadMedia);
   const del = useServerFn(deleteMedia);
 
   const q = useQuery({
-    queryKey: ['media'],
-    queryFn: () => list(),
+    queryKey: ['media', options?.projectId ?? 'all'],
+    queryFn: () => list({ data: { projectId: options?.projectId } }),
     staleTime: 30_000,
     enabled: options?.includeLibrary !== false,
   });
@@ -303,9 +303,11 @@ export function useMedia(options?: { includeLibrary?: boolean }) {
   return { items, add, addAsync, remove, uploading: mUp.isPending, uploadError: mUp.error };
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function useProjectMedia(projectId?: string, category?: string) {
   const list = useServerFn(listProjectMedia);
-  const enabled = Boolean(projectId);
+  const enabled = Boolean(projectId && UUID_RE.test(projectId));
   const q = useQuery({
     queryKey: ['media', 'project', projectId, category ?? 'all'],
     queryFn: () => list({ data: { projectId: projectId as string, category } }),
@@ -313,7 +315,7 @@ export function useProjectMedia(projectId?: string, category?: string) {
     enabled,
   });
 
-  return { items: (q.data ?? []) as MediaItem[], loading: q.isPending };
+  return { items: (q.data ?? []) as MediaItem[], loading: q.isLoading };
 }
 
 /* ============ TECHNOLOGIES ============ */

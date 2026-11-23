@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { Download, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useSettings } from '@/lib/projects-store';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 const links = [
   { href: '/', label: 'Início', hash: false },
@@ -26,7 +27,7 @@ export function CaseStudyHeader() {
     <header className="sticky top-0 z-50 border-b border-white/5 bg-[#050505]/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-2" aria-label="Início">
-          <span className="font-black tracking-tight text-[#FFD600]">{initials || 'AO'}</span>
+          <span className="font-black tracking-tight text-primary">{initials || 'AO'}</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Principal">
@@ -36,7 +37,7 @@ export function CaseStudyHeader() {
               href={link.href}
               className={`text-sm transition-colors ${
                 link.active
-                  ? 'text-white underline decoration-[#FFD600] decoration-2 underline-offset-8'
+                  ? 'text-white underline decoration-primary decoration-2 underline-offset-8'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
@@ -46,11 +47,14 @@ export function CaseStudyHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <div className="hidden sm:block">
+            <ThemeSwitcher />
+          </div>
           <a
             href={cvHref}
             target={externalCv ? '_blank' : undefined}
             rel={externalCv ? 'noreferrer' : undefined}
-            className="hidden items-center gap-2 rounded-full border border-zinc-700 px-4 py-2 text-xs text-zinc-200 hover:border-[#FFD600] hover:text-white sm:inline-flex"
+            className="hidden items-center gap-2 rounded-full border border-zinc-700 px-4 py-2 text-xs text-zinc-200 hover:border-primary hover:text-white sm:inline-flex"
           >
             <Download className="size-3.5" aria-hidden="true" />
             Ver currículo
@@ -79,7 +83,11 @@ export function CaseStudyHeader() {
                 {link.label}
               </a>
             ))}
-            <a href={cvHref} className="text-sm text-[#FFD600]">
+            <div className="flex items-center justify-between border-t border-white/10 pt-3">
+              <span className="text-xs text-zinc-400">Tema</span>
+              <ThemeSwitcher />
+            </div>
+            <a href={cvHref} className="text-sm text-primary">
               Ver currículo
             </a>
           </div>

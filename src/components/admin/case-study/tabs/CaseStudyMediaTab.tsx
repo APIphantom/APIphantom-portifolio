@@ -22,9 +22,16 @@ function isMediaLayout(value: string): value is MediaLayout {
   return MEDIA_LAYOUTS.some((layout) => layout.value === value);
 }
 
+function hasPersistedProjectId(projectId: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    projectId,
+  );
+}
+
 export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyMediaTabProps) {
   const media = caseStudy.media;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const canUploadToProject = hasPersistedProjectId(projectId);
   const { items: projectMedia, loading } = useProjectMedia(projectId);
   const { addAsync, uploading } = useMedia({ includeLibrary: false });
 
@@ -98,6 +105,12 @@ export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyM
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (!files.length) return;
+
+    if (!canUploadToProject) {
+      toast.error('Salve o projeto antes de enviar mídias para vinculá-las corretamente.');
+      event.target.value = '';
+      return;
+    }
 
     const nextItems = [...media.items];
     let uploadedCount = 0;
@@ -200,7 +213,7 @@ export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyM
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
+              disabled={uploading || !canUploadToProject}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:glow-neon text-xs font-semibold uppercase transition-all disabled:opacity-50"
             >
               <UploadCloud className="size-4" /> {uploading ? 'Enviando…' : 'Upload'}
@@ -222,6 +235,11 @@ export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyM
             />
           </div>
         </div>
+        {!canUploadToProject ? (
+          <p className="-mt-3 mb-4 text-xs text-muted-foreground">
+            Salve o projeto para habilitar o envio de mídias vinculadas a ele.
+          </p>
+        ) : null}
 
         <div className="mb-6 rounded-lg border border-border p-4">
           <h4 className="mb-3 text-sm font-semibold">Arquivos vinculados ao projeto</h4>

@@ -18,7 +18,7 @@ export function FinalCTA({ projectTitle }: Props) {
         <div className="absolute -right-16 -bottom-24 display text-[18rem] text-primary/5 leading-none select-none pointer-events-none">
           {projectTitle.charAt(0)}
         </div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(255,212,0,0.16),transparent_48%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(var(--primary-rgb),0.16),transparent_48%)]" />
 
         <div className="relative grid md:grid-cols-2 gap-6 items-center">
           <div>

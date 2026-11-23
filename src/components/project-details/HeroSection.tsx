@@ -40,7 +40,7 @@ export function HeroSection({
   const spotlight = useTransform(
     [sxs, sys],
     ([x, y]) =>
-      `radial-gradient(560px circle at ${x}% ${y}%, rgba(255, 212, 0, 0.14), transparent 55%)`,
+      `radial-gradient(560px circle at ${x}% ${y}%, rgba(var(--primary-rgb), 0.14), transparent 55%)`,
   );
 
   return (
@@ -55,7 +55,7 @@ export function HeroSection({
       }}
     >
       <motion.div className="absolute inset-0 -z-10" style={{ background: spotlight }} />
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_75%_42%,rgba(255,212,0,0.10),transparent_42%)] blur-3xl" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_75%_42%,rgba(var(--primary-rgb),0.10),transparent_42%)] blur-3xl" />
 
       <div className="mx-auto max-w-7xl grid lg:grid-cols-12 gap-10 lg:gap-14 items-center w-full">
         <div className="lg:col-span-5">

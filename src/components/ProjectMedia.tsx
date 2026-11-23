@@ -12,6 +12,7 @@ type Props = {
   videoProps?: Omit<VideoHTMLAttributes<HTMLVideoElement>, 'src' | 'className'>;
   videoOptions?: VideoMediaOptions;
   containerProps?: Omit<HTMLAttributes<HTMLDivElement>, 'className'>;
+  containerClassName?: string;
   fit?: 'cover' | 'contain';
   poster?: string;
 };
@@ -26,6 +27,7 @@ export function ProjectMedia({
   videoProps,
   videoOptions,
   containerProps,
+  containerClassName,
   fit,
   poster,
 }: Props) {
@@ -38,7 +40,7 @@ export function ProjectMedia({
 
   if (kind === 'video') {
     return (
-      <div {...containerProps}>
+      <div {...containerProps} className={cn(containerClassName)}>
         <video
           src={src}
           className={cn(className)}
@@ -57,7 +59,7 @@ export function ProjectMedia({
   }
 
   return (
-    <div {...containerProps}>
+    <div {...containerProps} className={cn(containerClassName)}>
       <img
         src={src}
         alt={alt}

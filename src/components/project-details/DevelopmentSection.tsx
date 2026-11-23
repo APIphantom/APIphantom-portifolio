@@ -43,7 +43,7 @@ export function DevelopmentSection({ timeline, cards }: Props) {
                 className="relative pl-6 pr-3 py-3 rounded-xl border border-primary/35 bg-background/70"
               >
                 <span className="absolute left-2 top-0 bottom-0 w-px bg-gradient-to-b from-primary70 via-primary/40 to-transparent" />
-                <span className="absolute left-[5px] top-4 size-2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(255,212,0,0.13)]" />
+                <span className="absolute left-[5px] top-4 size-2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(var(--primary-rgb),0.13)]" />
                 <div className="text-[10px] uppercase tracking-[0.25em] text-primary mb-1">
                   Etapa {String(i + 1).padStart(2, '0')}
                 </div>
@@ -76,7 +76,7 @@ export function DevelopmentSection({ timeline, cards }: Props) {
                   <p className="text-xs text-foreground/70 leading-relaxed line-clamp-3">
                     {step.description}
                   </p>
-                  <span className="hidden md:block absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(255,212,0,0.13)]" />
+                  <span className="hidden md:block absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(var(--primary-rgb),0.13)]" />
                   {i < visibleTimeline.length - 1 && (
                     <div className="hidden md:block absolute -right-2 top-1/2 -translate-y-1/2 h-px w-4 bg-primary/55" />
                   )}
@@ -94,11 +94,11 @@ export function DevelopmentSection({ timeline, cards }: Props) {
               whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: reducedMotion ? 0.01 : 0.42, delay: i * 0.05 }}
-              className="group relative min-w-0 overflow-hidden rounded-2xl border border-primary/35 bg-gradient-to-b from-primary/[0.08] via-[#0b0b08]/90 to-[#070706]/95 p-4 md:p-5 hover:-translate-y-0.5 hover:scale-[1.01] hover:border-primary/70 hover:shadow-[0_20px_55px_rgba(255,212,0,0.16)] transition-all"
+              className="group relative min-w-0 overflow-hidden rounded-2xl border border-primary/35 bg-gradient-to-b from-primary/[0.08] via-[#0b0b08]/90 to-[#070706]/95 p-4 md:p-5 hover:-translate-y-0.5 hover:scale-[1.01] hover:border-primary/70 hover:shadow-[0_20px_55px_rgba(var(--primary-rgb),0.16)] transition-all"
               data-cursor="details"
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
-              <div className="pointer-events-none absolute inset-0 opacity-[0.09] [background-image:linear-gradient(to_bottom,transparent_0%,rgba(255,212,0,0.11)_40%,transparent_100%)]" />
+              <div className="pointer-events-none absolute inset-0 opacity-[0.09] [background-image:linear-gradient(to_bottom,transparent_0%,rgba(var(--primary-rgb),0.11)_40%,transparent_100%)]" />
 
               <div className="relative flex items-center justify-between mb-3 gap-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-primary/35 bg-primary/[0.1] text-[10px] uppercase tracking-[0.22em] text-primary">

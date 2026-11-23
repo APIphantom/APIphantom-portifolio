@@ -47,7 +47,7 @@ export function CaseStudyPage({ project, technologies = [], settings, neighbors,
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
       {preview ? (
-        <div className="sticky top-0 z-[60] bg-[#FFD600] px-4 py-2 text-center text-xs font-semibold text-black">
+        <div className="sticky top-0 z-[60] bg-primary px-4 py-2 text-center text-xs font-semibold text-primary-foreground">
           Preview — este projeto ainda não está publicado
         </div>
       ) : null}
@@ -70,7 +70,7 @@ export function CaseStudyPage({ project, technologies = [], settings, neighbors,
       <footer className="border-t border-zinc-800 px-6 py-10">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="font-black text-[#FFD600]">
+            <div className="font-black text-primary">
               {(settings?.name || 'Adriano Oliveira')
                 .split(' ')
                 .filter(Boolean)

@@ -41,7 +41,7 @@ export function FloatingMockup({ title, mediaUrl, mediaVideoOptions, status }: P
         }}
         data-cursor="details"
       >
-        <div className="absolute -inset-6 -z-10 bg-[radial-gradient(circle,rgba(255,212,0,0.32),transparent_58%)] blur-3xl" />
+        <div className="absolute -inset-6 -z-10 bg-[radial-gradient(circle,rgba(var(--primary-rgb),0.32),transparent_58%)] blur-3xl" />
         {mediaUrl ? (
           <ProjectMedia
             src={mediaUrl}

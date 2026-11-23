@@ -34,7 +34,7 @@ export function LessonsSection({ items }: Props) {
             return (
               <article
                 key={item.id}
-                className="group rounded-2xl border border-border/70 bg-background/45 p-4 hover:border-primary/60 hover:shadow-[0_18px_44px_rgba(255,212,0,0.12)] transition-all"
+                className="group rounded-2xl border border-border/70 bg-background/45 p-4 hover:border-primary/60 hover:shadow-[0_18px_44px_rgba(var(--primary-rgb),0.12)] transition-all"
               >
                 <div className="inline-flex items-center gap-2 text-primary mb-3">
                   <Icon className="size-4" />
