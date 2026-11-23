@@ -636,19 +636,14 @@ export const createMediaUpload = createServerFn({ method: 'POST' })
   .validator((d: unknown) => mediaUploadInput.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const sb = await admin();
-
     const path = getMediaUploadPath(data);
-    let signedResult = await sb.storage
+    const signedResult = await context.supabase.storage
       .from('media')
       .createSignedUploadUrl(path);
-    if (signedResult.error && isRowLevelSecurityError(signedResult.error)) {
-      signedResult = await context.supabase.storage.from('media').createSignedUploadUrl(path);
-    }
     if (signedResult.error) {
       throw new Error(`O Supabase negou a criação do upload: ${signedResult.error.message}`);
     }
-    const { data: pub } = sb.storage.from('media').getPublicUrl(path);
+    const { data: pub } = context.supabase.storage.from('media').getPublicUrl(path);
 
     return { path, token: signedResult.data.token, url: pub.publicUrl };
   });
@@ -660,7 +655,6 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const sb = await admin();
 
     const mimeType = data.type.toLowerCase();
     const safeCategory = sanitizePathPart(data.category || data.folder || 'misc') || 'misc';
@@ -672,14 +666,9 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
 
     const fileName = data.storagePath.slice(expectedPrefix.length);
     try {
-      let listedFiles = await sb.storage
+      const listedFiles = await context.supabase.storage
         .from('media')
         .list(`${projectFolder}/${safeCategory}`, { limit: 100, search: fileName });
-      if (listedFiles.error && isRowLevelSecurityError(listedFiles.error)) {
-        listedFiles = await context.supabase.storage
-          .from('media')
-          .list(`${projectFolder}/${safeCategory}`, { limit: 100, search: fileName });
-      }
       if (listedFiles.error) throw new Error(listedFiles.error.message);
       const storedFile = listedFiles.data?.find((file: { name: string }) => file.name === fileName);
       if (!storedFile) throw new Error('O arquivo não chegou ao Storage do Supabase.');
@@ -690,7 +679,7 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
 
       const row = {
         name: data.name,
-        url: sb.storage.from('media').getPublicUrl(data.storagePath).data.publicUrl,
+        url: context.supabase.storage.from('media').getPublicUrl(data.storagePath).data.publicUrl,
         storage_path: data.storagePath,
         type: mimeType,
         size: data.size,
@@ -708,17 +697,11 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
         sort_order: data.sortOrder ?? 0,
         updated_at: new Date().toISOString(),
       };
-      let inserted = await sb.from('media').insert(row).select('*').single();
-      if (inserted.error && isRowLevelSecurityError(inserted.error)) {
-        inserted = await context.supabase.from('media').insert(row).select('*').single();
-      }
+      const inserted = await context.supabase.from('media').insert(row).select('*').single();
       if (inserted.error) throw new Error(inserted.error.message);
       return rowToMedia(inserted.data);
     } catch (error) {
-      const { error: cleanupError } = await sb.storage.from('media').remove([data.storagePath]);
-      if (cleanupError && isRowLevelSecurityError(cleanupError)) {
-        await context.supabase.storage.from('media').remove([data.storagePath]);
-      }
+      await context.supabase.storage.from('media').remove([data.storagePath]);
       throw error;
     }
   });
