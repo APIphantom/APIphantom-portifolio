@@ -51,6 +51,7 @@ function CurriculosPage() {
           size: file.size,
           file,
           folder: 'curriculos',
+          category: 'document',
         });
         uploaded += 1;
       } catch (error) {
