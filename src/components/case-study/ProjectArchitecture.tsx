@@ -41,7 +41,8 @@ export function ProjectArchitecture({
   const namedTechs = (data.technologyIds ?? [])
     .map((id) => techById.get(id))
     .filter((t): t is Technology => Boolean(t));
-  const badges = namedTechs.length
+  const hasTechnologySelection = data.technologySelectionSet || data.technologyIds.length > 0;
+  const badges = hasTechnologySelection
     ? namedTechs.map((technology) => technology.name)
     : [...new Set(fallbackTechnologyNames.filter((name) => name.trim()))];
   const description = data.description?.trim();

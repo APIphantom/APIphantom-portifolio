@@ -143,6 +143,7 @@ export type ArchitectureConfig = {
   stackDetails?: Partial<Record<ArchitectureStackKey, string>>;
   groups: ArchitectureGroup[];
   technologyIds: string[];
+  technologySelectionSet?: boolean;
 };
 
 export type ArchitectureStackKey = 'frontend' | 'styling' | 'stateManagement' | 'routing';
@@ -435,6 +436,7 @@ const caseStudyV2FormSchema: z.ZodType<CaseStudyV2, z.ZodTypeDef, unknown> = z
           .nullish()
           .transform((value) => value ?? undefined),
         technologyIds: z.array(z.string()),
+        technologySelectionSet: z.boolean().optional(),
         groups: z.array(
           z
             .object({
@@ -577,6 +579,9 @@ export function mergeCaseStudyUpdates(
           ...updates.architecture,
           groups: updates.architecture.groups ?? current.architecture.groups,
           technologyIds: updates.architecture.technologyIds ?? current.architecture.technologyIds,
+          technologySelectionSet:
+            updates.architecture.technologySelectionSet ??
+            current.architecture.technologySelectionSet,
         }
       : current.architecture,
     media: updates.media
@@ -730,6 +735,7 @@ export function emptyCaseStudy(): CaseStudyV2 {
       highlightText: '',
       groups: [],
       technologyIds: [],
+      technologySelectionSet: false,
     },
     media: {
       eyebrow: '',
@@ -822,6 +828,7 @@ export function normalizeCaseStudy(input: Project): CaseStudyV2 {
         ...raw.architecture,
         groups: architectureGroups,
         technologyIds: raw.architecture?.technologyIds ?? [],
+        technologySelectionSet: raw.architecture?.technologySelectionSet ?? false,
       },
       media: { ...base.media, ...raw.media, items: raw.media?.items ?? [] },
       metrics: raw.metrics ?? [],

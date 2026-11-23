@@ -396,7 +396,11 @@ export function CaseStudyEditor({ project, isNew = false }: Props) {
                   <CaseStudyFeaturesTab caseStudy={caseStudy} onUpdate={updateCaseStudy} />
                 )}
                 {currentTab === 'arquitetura' && (
-                  <CaseStudyArchitectureTab caseStudy={caseStudy} onUpdate={updateCaseStudy} />
+                  <CaseStudyArchitectureTab
+                    caseStudy={caseStudy}
+                    projectTechnologies={formData.tech}
+                    onUpdate={updateCaseStudy}
+                  />
                 )}
                 {currentTab === 'midia' && (
                   <CaseStudyMediaTab
