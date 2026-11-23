@@ -567,7 +567,7 @@ const allowedMimeTypes = [
   'application/pdf',
 ] as const;
 
-const uploadInput = z.object({
+const mediaUploadInput = z.object({
   name: z.string().min(1).max(200),
   type: z.string().min(1).max(120),
   size: z
@@ -575,7 +575,6 @@ const uploadInput = z.object({
     .int()
     .nonnegative()
     .max(120 * 1024 * 1024), // 120MB
-  dataBase64: z.string().min(1), // sem prefixo data:
   folder: z.string().max(80).optional().default(''),
   projectId: z.string().uuid().optional(),
   category: z.string().max(40).optional(),
@@ -587,56 +586,99 @@ const uploadInput = z.object({
   duration: z.number().nonnegative().optional(),
 });
 
-export const uploadMedia = createServerFn({ method: 'POST' })
+const uploadMimeTypes = new Set<string>(allowedMimeTypes);
+
+function getMediaUploadPath(data: z.infer<typeof mediaUploadInput>) {
+  const mimeType = data.type.toLowerCase();
+  if (!uploadMimeTypes.has(mimeType)) {
+    throw new Error('Formato de arquivo não suportado. Use MP4 para vídeos.');
+  }
+
+  const safeCategory = sanitizePathPart(data.category || data.folder || 'misc') || 'misc';
+  const projectFolder = sanitizePathPart(data.projectId || 'global') || 'global';
+  const ext = extFromMimeOrName(mimeType, data.name);
+  const uniqueName = `${crypto.randomUUID()}-${Date.now()}.${ext}`;
+  return `${projectFolder}/${safeCategory}/${uniqueName}`;
+}
+
+/**
+ * Emite um token de upload limitado a um único caminho. O arquivo segue do
+ * navegador diretamente para o Storage, sem atravessar o body da Server Function.
+ */
+export const createMediaUpload = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
-  .validator((d: any) => uploadInput.parse(d))
+  .validator((d: unknown) => mediaUploadInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const sb = await admin();
+
+    const path = getMediaUploadPath(data);
+    const { data: signedUpload, error: signedError } = await sb.storage
+      .from('media')
+      .createSignedUploadUrl(path);
+    if (signedError) throw new Error(signedError.message);
+    const { data: pub } = sb.storage.from('media').getPublicUrl(path);
+
+    return { path, token: signedUpload.token, url: pub.publicUrl };
+  });
+
+export const registerUploadedMedia = createServerFn({ method: 'POST' })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) =>
+    mediaUploadInput.extend({ storagePath: z.string().min(1).max(500) }).parse(d),
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const sb = await admin();
 
     const mimeType = data.type.toLowerCase();
-    if (!allowedMimeTypes.includes(mimeType as (typeof allowedMimeTypes)[number])) {
-      throw new Error('Formato de arquivo nao suportado.');
-    }
-
-    const mediaType = detectMediaType(mimeType);
     const safeCategory = sanitizePathPart(data.category || data.folder || 'misc') || 'misc';
     const projectFolder = sanitizePathPart(data.projectId || 'global') || 'global';
-    const ext = extFromMimeOrName(mimeType, data.name);
-    const uniqueName = `${crypto.randomUUID()}-${Date.now()}.${ext}`;
-    const path = `${projectFolder}/${safeCategory}/${uniqueName}`;
+    const expectedPrefix = `${projectFolder}/${safeCategory}/`;
+    if (!data.storagePath.startsWith(expectedPrefix) || data.storagePath.split('/').length !== 3) {
+      throw new Error('Caminho de mídia inválido. Gere um novo upload e tente novamente.');
+    }
 
-    const bin = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
-    const { error: upErr } = await sb.storage.from('media').upload(path, bin, {
-      contentType: mimeType,
-      upsert: false,
-    });
-    if (upErr) throw new Error(upErr.message);
-    const { data: pub } = sb.storage.from('media').getPublicUrl(path);
+    const fileName = data.storagePath.slice(expectedPrefix.length);
+    try {
+      const { data: storedFiles, error: listError } = await sb.storage
+        .from('media')
+        .list(`${projectFolder}/${safeCategory}`, { limit: 100, search: fileName });
+      if (listError) throw new Error(listError.message);
+      const storedFile = storedFiles?.find((file) => file.name === fileName);
+      if (!storedFile) throw new Error('O arquivo não chegou ao Storage do Supabase.');
+      const storedSize = Number(storedFile.metadata?.size);
+      if (Number.isFinite(storedSize) && storedSize > 0 && storedSize !== data.size) {
+        throw new Error('O tamanho enviado não corresponde ao arquivo recebido.');
+      }
 
-    const row = {
-      name: data.name,
-      url: pub.publicUrl,
-      storage_path: path,
-      type: mimeType,
-      size: data.size,
-      mime_type: mimeType,
-      media_type: mediaType,
-      project_id: data.projectId ?? null,
-      category: safeCategory,
-      folder: data.folder ?? safeCategory,
-      file_size: data.size,
-      width: data.width ?? null,
-      height: data.height ?? null,
-      duration: data.duration ?? null,
-      alt: data.alt ?? null,
-      caption: data.caption ?? null,
-      sort_order: data.sortOrder ?? 0,
-      updated_at: new Date().toISOString(),
-    };
-    const { data: out, error } = await sb.from('media').insert(row).select('*').single();
-    if (error) throw new Error(error.message);
-    return rowToMedia(out);
+      const row = {
+        name: data.name,
+        url: sb.storage.from('media').getPublicUrl(data.storagePath).data.publicUrl,
+        storage_path: data.storagePath,
+        type: mimeType,
+        size: data.size,
+        mime_type: mimeType,
+        media_type: detectMediaType(mimeType),
+        project_id: data.projectId ?? null,
+        category: safeCategory,
+        folder: data.folder ?? safeCategory,
+        file_size: data.size,
+        width: data.width ?? null,
+        height: data.height ?? null,
+        duration: data.duration ?? null,
+        alt: data.alt ?? null,
+        caption: data.caption ?? null,
+        sort_order: data.sortOrder ?? 0,
+        updated_at: new Date().toISOString(),
+      };
+      const { data: out, error } = await sb.from('media').insert(row).select('*').single();
+      if (error) throw new Error(error.message);
+      return rowToMedia(out);
+    } catch (error) {
+      await sb.storage.from('media').remove([data.storagePath]);
+      throw error;
+    }
   });
 
 export const deleteMedia = createServerFn({ method: 'POST' })

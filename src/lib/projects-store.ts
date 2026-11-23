@@ -18,7 +18,8 @@ import {
   deleteTechnology,
   listMedia,
   listProjectMedia,
-  uploadMedia,
+  createMediaUpload,
+  registerUploadedMedia,
   deleteMedia,
   getSettings,
   getAdminSettings,
@@ -26,6 +27,7 @@ import {
 } from './portfolio.functions';
 import type { MediaUpload, ProjectMedia } from './media-types';
 import type { VideoMediaOptions } from './project-media';
+import { SUPABASE_PUBLIC } from '@/integrations/supabase/client';
 
 /* ============ TIPOS (mantidos da versão antiga) ============ */
 export type ProjectCategory = 'web' | 'ui' | 'ecommerce' | 'experiment' | 'mobile';
@@ -229,23 +231,123 @@ export function useProjects(opts?: { publishedOnly?: boolean }) {
 /* ============ MEDIA ============ */
 export type MediaItem = ProjectMedia;
 
-async function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => {
-      const result = r.result as string;
-      const idx = result.indexOf(',');
-      resolve(idx >= 0 ? result.slice(idx + 1) : result);
-    };
-    r.onerror = () => reject(r.error);
-    r.readAsDataURL(file);
+const MEDIA_UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024;
+const MEDIA_UPLOAD_RETRY_DELAYS = [0, 1500, 3000, 6000];
+
+function encodeUploadMetadata(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+function tusError(response: Response) {
+  return response.text().then((body) => {
+    const detail = body.trim().slice(0, 600);
+    return new Error(detail || `Upload do Supabase falhou (HTTP ${response.status}).`);
   });
+}
+
+async function uploadWithTus(
+  file: File,
+  storagePath: string,
+  token: string,
+  contentType: string,
+  onProgress?: (progress: number) => void,
+) {
+  const projectHost = new URL(SUPABASE_PUBLIC.url).hostname.split('.')[0];
+  const endpoint = `https://${projectHost}.storage.supabase.co/storage/v1/upload/resumable`;
+  const metadata = [
+    ['bucketName', 'media'],
+    ['objectName', storagePath],
+    ['contentType', contentType],
+    ['cacheControl', '3600'],
+  ]
+    .map(([key, value]) => `${key} ${encodeUploadMetadata(value)}`)
+    .join(',');
+
+  const createResponse = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_PUBLIC.key,
+      'x-signature': token,
+      'Tus-Resumable': '1.0.0',
+      'Upload-Length': String(file.size),
+      'Upload-Metadata': metadata,
+    },
+  });
+  if (!createResponse.ok) throw await tusError(createResponse);
+
+  const location = createResponse.headers.get('Location');
+  if (!location) throw new Error('O Supabase não retornou o endereço para continuar o upload.');
+  const uploadUrl = new URL(location, endpoint).toString();
+  let offset = Number(createResponse.headers.get('Upload-Offset') ?? 0);
+  onProgress?.(file.size === 0 ? 100 : Math.round((offset / file.size) * 100));
+
+  while (offset < file.size) {
+    const chunk = file.slice(offset, Math.min(offset + MEDIA_UPLOAD_CHUNK_SIZE, file.size));
+    let response: Response | undefined;
+
+    for (let attempt = 0; attempt < MEDIA_UPLOAD_RETRY_DELAYS.length; attempt += 1) {
+      const delay = MEDIA_UPLOAD_RETRY_DELAYS[attempt];
+      if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
+
+      try {
+        response = await fetch(uploadUrl, {
+          method: 'PATCH',
+          headers: {
+            apikey: SUPABASE_PUBLIC.key,
+            'x-signature': token,
+            'Tus-Resumable': '1.0.0',
+            'Upload-Offset': String(offset),
+            'Content-Type': 'application/offset+octet-stream',
+          },
+          body: chunk,
+        });
+      } catch (error) {
+        if (attempt === MEDIA_UPLOAD_RETRY_DELAYS.length - 1) throw error;
+        continue;
+      }
+
+      if (response.status === 409) {
+        const serverOffset = Number(response.headers.get('Upload-Offset'));
+        if (Number.isInteger(serverOffset) && serverOffset > offset && serverOffset <= file.size) {
+          offset = serverOffset;
+          response = undefined;
+          break;
+        }
+      }
+
+      if (response.ok) break;
+      if (response.status < 500 && response.status !== 429) throw await tusError(response);
+      if (attempt === MEDIA_UPLOAD_RETRY_DELAYS.length - 1) throw await tusError(response);
+    }
+
+    if (!response) continue;
+    if (!response.ok) throw await tusError(response);
+
+    const nextOffset = Number(response.headers.get('Upload-Offset'));
+    if (!Number.isInteger(nextOffset) || nextOffset <= offset || nextOffset > file.size) {
+      throw new Error('O Supabase retornou uma posição inválida para o upload.');
+    }
+    offset = nextOffset;
+    onProgress?.(Math.round((offset / file.size) * 100));
+  }
+}
+
+async function resolveMediaFile(media: MediaUpload) {
+  if (media.file) return media.file;
+  if (!media.url?.startsWith('data:')) throw new Error('Upload precisa de arquivo ou data URI.');
+  const response = await fetch(media.url);
+  const blob = await response.blob();
+  return new File([blob], media.name, { type: media.type || blob.type });
 }
 
 export function useMedia(options?: { includeLibrary?: boolean; projectId?: string }) {
   const qc = useQc();
   const list = useServerFn(listMedia);
-  const up = useServerFn(uploadMedia);
+  const createUpload = useServerFn(createMediaUpload);
+  const registerUpload = useServerFn(registerUploadedMedia);
   const del = useServerFn(deleteMedia);
 
   const q = useQuery({
@@ -260,32 +362,25 @@ export function useMedia(options?: { includeLibrary?: boolean; projectId?: strin
 
   const mUp = useMutation({
     mutationFn: async (m: MediaUpload) => {
-      // Compat: se vier `file`, envia para Storage. Se vier `url` (data URI), extrai base64.
-      let dataBase64 = '';
-      if (m.file) dataBase64 = await fileToBase64(m.file);
-      else if (m.url?.startsWith('data:')) {
-        const idx = m.url.indexOf(',');
-        dataBase64 = idx >= 0 ? m.url.slice(idx + 1) : '';
-      } else {
-        throw new Error('Upload precisa de arquivo ou data URI');
-      }
-      return up({
-        data: {
-          name: m.name,
-          type: m.type,
-          size: m.size,
-          dataBase64,
-          folder: m.folder ?? '',
-          projectId: m.projectId,
-          category: m.category,
-          alt: m.alt,
-          caption: m.caption,
-          sortOrder: m.sortOrder,
-          width: m.width,
-          height: m.height,
-          duration: m.duration,
-        },
-      });
+      const file = await resolveMediaFile(m);
+      const type = m.type || file.type || 'application/octet-stream';
+      const metadata = {
+        name: m.name,
+        type,
+        size: file.size,
+        folder: m.folder ?? '',
+        projectId: m.projectId,
+        category: m.category,
+        alt: m.alt,
+        caption: m.caption,
+        sortOrder: m.sortOrder,
+        width: m.width,
+        height: m.height,
+        duration: m.duration,
+      };
+      const { path, token } = await createUpload({ data: metadata });
+      await uploadWithTus(file, path, token, type, m.onProgress);
+      return registerUpload({ data: { ...metadata, storagePath: path } });
     },
     onSuccess: invalidate,
     retry: 2,

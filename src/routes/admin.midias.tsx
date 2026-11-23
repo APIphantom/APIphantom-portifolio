@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { UploadCloud, Search, Trash2, Copy, X } from 'lucide-react';
 import { useMedia, useProjects } from '@/lib/projects-store';
+import { getMediaMimeType } from '@/lib/media-types';
 import { toast } from 'sonner';
 import { ProjectMedia } from '@/components/ProjectMedia';
 
@@ -22,6 +23,7 @@ function MidiasPage() {
     Array<{
       id: string;
       name: string;
+      type: string;
       size: number;
       file: File;
       projectId?: string;
@@ -50,31 +52,24 @@ function MidiasPage() {
     const running = tasks.some((t) => t.status === 'uploading');
     if (!next || running) return;
 
-    let progressTimer: ReturnType<typeof setInterval> | null = null;
-
     const run = async () => {
       setTasks((prev) =>
-        prev.map((t) => (t.id === next.id ? { ...t, status: 'uploading', progress: 5 } : t)),
+        prev.map((t) => (t.id === next.id ? { ...t, status: 'uploading', progress: 0 } : t)),
       );
-
-      progressTimer = setInterval(() => {
-        setTasks((prev) =>
-          prev.map((t) => {
-            if (t.id !== next.id || t.status !== 'uploading') return t;
-            return { ...t, progress: Math.min(90, t.progress + 7) };
-          }),
-        );
-      }, 200);
 
       try {
         await addAsync({
           name: next.file.name,
           url: '',
-          type: next.file.type,
+          type: next.type,
           size: next.file.size,
           file: next.file,
           category: 'misc',
           projectId: next.projectId,
+          onProgress: (progress) =>
+            setTasks((prev) =>
+              prev.map((task) => (task.id === next.id ? { ...task, progress } : task)),
+            ),
         });
 
         setTasks((prev) =>
@@ -95,8 +90,6 @@ function MidiasPage() {
           ),
         );
         toast.error(`Falha ao enviar ${next.name}`);
-      } finally {
-        if (progressTimer) clearInterval(progressTimer);
       }
     };
 
@@ -105,7 +98,8 @@ function MidiasPage() {
 
   const handleFiles = (files: FileList) => {
     Array.from(files).forEach((f) => {
-      if (!allowed.has(f.type)) {
+      const type = getMediaMimeType(f);
+      if (!allowed.has(type)) {
         toast.error(`Formato nao suportado: ${f.name}`);
         return;
       }
@@ -124,6 +118,7 @@ function MidiasPage() {
         {
           id: taskId,
           name: f.name,
+          type,
           size: f.size,
           file: f,
           projectId: projectId || undefined,
@@ -145,6 +140,10 @@ function MidiasPage() {
           <p className="text-muted-foreground text-sm mt-1">
             {items.length} arquivos · Supabase Storage{uploading ? ' · enviando…' : ''}
           </p>
+        <p className="mt-2 max-w-xl text-xs text-muted-foreground">
+          Para vídeos, prefira MP4 (H.264 + AAC), até 120 MB. O upload usa blocos e mostra o
+          progresso real.
+        </p>
         </div>
         <button
           onClick={() => ref.current?.click()}
@@ -156,7 +155,7 @@ function MidiasPage() {
           ref={ref}
           type="file"
           multiple
-          accept="image/*,video/*"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
           hidden
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />

@@ -51,8 +51,33 @@ export type MediaUpload = {
   width?: number;
   height?: number;
   duration?: number;
+  onProgress?: (progress: number) => void;
 };
 
 export type MediaResponse = {
   item: ProjectMedia;
 };
+
+const MEDIA_MIME_BY_EXTENSION: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  gif: 'image/gif',
+  svg: 'image/svg+xml',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+  avi: 'video/x-msvideo',
+  mkv: 'video/x-matroska',
+  pdf: 'application/pdf',
+};
+
+export function getMediaMimeType(file: Pick<File, 'name' | 'type'>) {
+  const extension = file.name.toLowerCase().split('.').pop() ?? '';
+  const inferredType = MEDIA_MIME_BY_EXTENSION[extension];
+  const browserType = file.type.trim().toLowerCase();
+  return !browserType || browserType === 'application/octet-stream'
+    ? inferredType ?? browserType
+    : browserType;
+}

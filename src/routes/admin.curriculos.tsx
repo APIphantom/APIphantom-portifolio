@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import { UploadCloud, FileText, Copy, CheckCircle2, Trash2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMedia, useSettings } from '@/lib/projects-store';
+import { getMediaMimeType } from '@/lib/media-types';
 
 export const Route = createFileRoute('/admin/curriculos')({
   component: CurriculosPage,
@@ -47,7 +48,7 @@ function CurriculosPage() {
         await addAsync({
           name: file.name,
           url: '',
-          type: file.type || 'application/pdf',
+          type: getMediaMimeType(file) || 'application/pdf',
           size: file.size,
           file,
           folder: 'curriculos',

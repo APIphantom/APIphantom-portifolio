@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Plus, Trash2, UploadCloud } from 'lucide-react'
 import { toast } from 'sonner';
 import { ProjectMedia } from '@/components/ProjectMedia';
 import { useMedia, useProjectMedia } from '@/lib/projects-store';
+import { getMediaMimeType } from '@/lib/media-types';
 import type {
   CaseStudyV2,
   MediaSectionConfig,
@@ -118,7 +119,7 @@ export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyM
       try {
         const asset = await addAsync({
           name: file.name,
-          type: file.type,
+          type: getMediaMimeType(file),
           size: file.size,
           file,
           projectId,
@@ -161,6 +162,10 @@ export function CaseStudyMediaTab({ caseStudy, projectId, onUpdate }: CaseStudyM
           Para mostrar o projeto funcionando, envie o vídeo ou adicione uma URL de vídeo e marque
           <span className="font-semibold text-primary"> “Vídeo de demonstração”</span>. Ele será
           apresentado em um player próprio, antes da galeria.
+        </p>
+        <p className="-mt-4 mb-6 text-xs text-muted-foreground">
+          Vídeos: prefira MP4 com H.264 e AAC, até 120 MB. O envio usa blocos e tenta novamente em
+          caso de falhas temporárias de rede.
         </p>
       </div>
 
