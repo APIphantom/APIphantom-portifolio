@@ -9,7 +9,7 @@ export const Route = createFileRoute('/admin/curriculos')({
 });
 
 function CurriculosPage() {
-  const { items, add, remove, uploading } = useMedia();
+  const { items, addAsync, remove, uploading } = useMedia();
   const { settings, update } = useSettings();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busyUrl, setBusyUrl] = useState<string | null>(null);
@@ -29,7 +29,7 @@ function CurriculosPage() {
 
   const activeCvUrl = settings.cvUrl || '/cv-adriano-oliveira.pdf';
 
-  const handleFiles = (files: FileList) => {
+  const handleFiles = async (files: FileList) => {
     const pdfs = Array.from(files).filter(
       (file) => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'),
     );
@@ -39,20 +39,34 @@ function CurriculosPage() {
       return;
     }
 
-    pdfs.forEach((file, index) => {
-      add({
-        name: file.name,
-        url: '',
-        type: file.type || 'application/pdf',
-        size: file.size,
-        file,
-        folder: 'curriculos',
-      });
+    let uploaded = 0;
+    const errors: string[] = [];
 
-      if (index === 0) {
-        toast.success('Currículo enviado. Após o upload, selecione-o como ativo na lista.');
+    for (const file of pdfs) {
+      try {
+        await addAsync({
+          name: file.name,
+          url: '',
+          type: file.type || 'application/pdf',
+          size: file.size,
+          file,
+          folder: 'curriculos',
+        });
+        uploaded += 1;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Falha no envio.';
+        errors.push(`${file.name}: ${message}`);
       }
-    });
+    }
+
+    if (uploaded > 0) {
+      toast.success(
+        `${uploaded} currículo${uploaded === 1 ? '' : 's'} enviado${uploaded === 1 ? '' : 's'} ao Supabase. Após o upload, selecione${uploaded === 1 ? '' : 'm'} o${uploaded === 1 ? '' : 's'} arquivo${uploaded === 1 ? '' : 's'} ativo${uploaded === 1 ? '' : 's'} na lista.`,
+      );
+    }
+    if (errors.length > 0) {
+      toast.error(errors.join('\n'), { duration: 10000 });
+    }
   };
 
   const setAsActive = (url: string) => {
@@ -86,8 +100,10 @@ function CurriculosPage() {
         </div>
 
         <button
+          type="button"
+          disabled={uploading}
           onClick={() => inputRef.current?.click()}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:glow-neon transition-shadow"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:glow-neon transition-shadow disabled:opacity-60"
         >
           <UploadCloud className="size-4" />
           {uploading ? 'Enviando...' : 'Enviar PDF'}
@@ -98,7 +114,11 @@ function CurriculosPage() {
           accept="application/pdf,.pdf"
           multiple
           hidden
-          onChange={(e) => e.target.files && handleFiles(e.target.files)}
+          onChange={(e) => {
+            const files = e.target.files;
+            if (files?.length) void handleFiles(files);
+            e.target.value = '';
+          }}
         />
       </header>
 
