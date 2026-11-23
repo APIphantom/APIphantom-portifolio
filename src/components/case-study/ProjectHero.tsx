@@ -71,7 +71,7 @@ export function ProjectHero({
               </span>
             ) : null}
             {data.title.trim() ? (
-              <h1 className="text-4xl font-bold leading-[0.98] tracking-normal text-white sm:text-6xl lg:text-7xl">
+              <h1 className="text-3xl font-bold leading-[0.98] tracking-normal text-white sm:text-5xl lg:text-6xl">
                 {data.title}
                 {data.titleHighlight?.trim() ? (
                   <>

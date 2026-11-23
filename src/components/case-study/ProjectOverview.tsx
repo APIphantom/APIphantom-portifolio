@@ -25,7 +25,7 @@ export function ProjectOverview({ data }: { data: OverviewConfig }) {
               {data.eyebrow?.trim() || '// 01 — Visão geral'}
             </p>
             {title ? (
-              <h2 className="mt-3 max-w-3xl text-3xl tracking-tight sm:text-4xl">
+              <h2 className="mt-3 max-w-3xl text-2xl tracking-tight sm:text-3xl">
                 <span className="font-bold text-primary">{titleAccent}</span>
                 {titleRest ? (
                   <span className="font-semibold text-foreground"> {titleRest}</span>
@@ -96,7 +96,7 @@ export function ProjectFeatures({ items, title }: { items: ProjectFeature[]; tit
               // Recursos do projeto
             </p>
             {sectionTitle ? (
-              <h2 className="mt-2 max-w-3xl text-3xl tracking-tight sm:text-4xl">
+              <h2 className="mt-2 max-w-3xl text-2xl tracking-tight sm:text-3xl">
                 <span className="font-bold text-primary">{sectionTitle}</span>
               </h2>
             ) : null}

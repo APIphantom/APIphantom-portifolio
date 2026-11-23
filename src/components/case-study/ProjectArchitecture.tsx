@@ -62,7 +62,7 @@ export function ProjectArchitecture({
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary sm:text-xs">
           {data.eyebrow?.trim() || '// Arquitetura'}
         </p>
-        <h2 className="mt-2 text-3xl tracking-tight sm:text-4xl">
+        <h2 className="mt-2 text-2xl tracking-tight sm:text-3xl">
           <span className="font-bold">{titleLead}</span>
           {titleRest.length ? (
             <span className="font-normal text-foreground"> {titleRest.join(' ')}</span>

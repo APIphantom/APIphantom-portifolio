@@ -28,7 +28,7 @@ export function ProjectMetrics({
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary sm:text-xs">
               // 04 — Resultados
             </p>
-            <h2 className="mt-2 text-3xl tracking-tight sm:text-4xl">
+            <h2 className="mt-2 text-2xl tracking-tight sm:text-3xl">
               <span className="font-bold text-primary">{titleLead}</span>
               {titleRest.length ? (
                 <span className="font-semibold text-foreground"> {titleRest.join(' ')}</span>
@@ -47,7 +47,7 @@ export function ProjectMetrics({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <div className="case-study-featured-value text-3xl font-bold text-foreground sm:text-4xl">
+                  <div className="case-study-featured-value text-2xl font-bold text-foreground sm:text-3xl">
                     {featured.value}
                     {featured.unit ? (
                       <span className="ml-1 text-base font-medium text-zinc-400">
@@ -125,7 +125,7 @@ export function ProjectPerformance({
     >
       <div className="mx-auto max-w-6xl">
         {sectionTitle ? (
-          <h2 className="text-3xl font-bold tracking-normal text-white">{sectionTitle}</h2>
+          <h2 className="text-2xl font-bold tracking-normal text-white">{sectionTitle}</h2>
         ) : null}
         <div
           className={`grid gap-3 sm:grid-cols-2 lg:grid-cols-4 ${sectionTitle ? 'mt-8 lg:mt-10' : ''}`}
@@ -135,7 +135,7 @@ export function ProjectPerformance({
               {item.icon?.trim() ? (
                 <CaseIcon name={item.icon} className="mb-4 size-5 text-primary" />
               ) : null}
-              <div className="case-study-featured-value text-3xl font-bold text-white">
+              <div className="case-study-featured-value text-2xl font-bold text-white">
                 {item.value}
                 {item.max ? <span className="text-lg text-zinc-500">/{item.max}</span> : null}
                 {item.unit ? (

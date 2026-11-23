@@ -17,7 +17,7 @@ export function ProjectDemoVideo({ item }: { item: GalleryMediaItem }) {
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary sm:text-xs">
               // Demonstração
             </p>
-            <h2 className="mt-2 text-2xl tracking-tight sm:text-3xl">
+            <h2 className="mt-2 text-xl tracking-tight sm:text-2xl">
               <span className="font-bold text-primary">{title}</span>
             </h2>
             {description ? (

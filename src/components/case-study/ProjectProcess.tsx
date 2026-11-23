@@ -70,7 +70,7 @@ function TimelineBlock({ items }: { items: string[] }) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-primary">
             // Cronograma
           </p>
-          <h3 className="mt-2 text-xl font-bold sm:text-2xl">Linha do tempo do projeto</h3>
+          <h3 className="mt-2 text-lg font-bold sm:text-xl">Linha do tempo do projeto</h3>
         </div>
         <CalendarDays className="size-6 text-primary" aria-hidden="true" />
       </div>
