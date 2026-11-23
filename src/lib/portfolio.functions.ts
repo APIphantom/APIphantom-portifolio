@@ -30,6 +30,15 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (error || data !== true) throw new Response('Forbidden', { status: 403 });
 }
 
+function isRowLevelSecurityError(error: unknown) {
+  if (!error || typeof error !== 'object') return false;
+  const candidate = error as { code?: string; message?: string };
+  return (
+    candidate.code === '42501' ||
+    candidate.message?.toLowerCase().includes('row-level security') === true
+  );
+}
+
 /* ---------- row mappers ---------- */
 function rowToProject(r: any) {
   return {
@@ -319,26 +328,43 @@ export const upsertProject = createServerFn({ method: 'POST' })
       if (errors.length) throw new Error(`Não é possível publicar: ${errors.join('; ')}`);
     }
 
-    const slugQuery = sb.from('projects').select('id').eq('slug', row.slug).limit(1);
-    const { data: existingSlug, error: slugErr } = data.id
-      ? await slugQuery.neq('id', data.id)
-      : await slugQuery;
-    if (slugErr) throw new Error(slugErr.message);
+    const findSlugConflicts = async (client: any) => {
+      let query = client.from('projects').select('id').eq('slug', row.slug).limit(1);
+      if (data.id) query = query.neq('id', data.id);
+      return query;
+    };
+    let slugCheck = await findSlugConflicts(sb);
+    if (slugCheck.error && isRowLevelSecurityError(slugCheck.error)) {
+      slugCheck = await findSlugConflicts(context.supabase);
+    }
+    if (slugCheck.error) throw new Error(slugCheck.error.message);
+    const existingSlug = slugCheck.data;
     if (existingSlug?.length) throw new Error('Slug já está em uso.');
 
     if (data.id) {
-      const { data: out, error } = await sb
+      let updateResult = await sb
         .from('projects')
         .update(row)
         .eq('id', data.id)
         .select('*')
         .single();
-      if (error) throw new Error(error.message);
-      return rowToProject(out);
+      if (updateResult.error && isRowLevelSecurityError(updateResult.error)) {
+        updateResult = await context.supabase
+          .from('projects')
+          .update(row)
+          .eq('id', data.id)
+          .select('*')
+          .single();
+      }
+      if (updateResult.error) throw new Error(updateResult.error.message);
+      return rowToProject(updateResult.data);
     } else {
-      const { data: out, error } = await sb.from('projects').insert(row).select('*').single();
-      if (error) throw new Error(error.message);
-      return rowToProject(out);
+      let insertResult = await sb.from('projects').insert(row).select('*').single();
+      if (insertResult.error && isRowLevelSecurityError(insertResult.error)) {
+        insertResult = await context.supabase.from('projects').insert(row).select('*').single();
+      }
+      if (insertResult.error) throw new Error(insertResult.error.message);
+      return rowToProject(insertResult.data);
     }
   });
 
@@ -613,13 +639,18 @@ export const createMediaUpload = createServerFn({ method: 'POST' })
     const sb = await admin();
 
     const path = getMediaUploadPath(data);
-    const { data: signedUpload, error: signedError } = await sb.storage
+    let signedResult = await sb.storage
       .from('media')
       .createSignedUploadUrl(path);
-    if (signedError) throw new Error(signedError.message);
+    if (signedResult.error && isRowLevelSecurityError(signedResult.error)) {
+      signedResult = await context.supabase.storage.from('media').createSignedUploadUrl(path);
+    }
+    if (signedResult.error) {
+      throw new Error(`O Supabase negou a criação do upload: ${signedResult.error.message}`);
+    }
     const { data: pub } = sb.storage.from('media').getPublicUrl(path);
 
-    return { path, token: signedUpload.token, url: pub.publicUrl };
+    return { path, token: signedResult.data.token, url: pub.publicUrl };
   });
 
 export const registerUploadedMedia = createServerFn({ method: 'POST' })
@@ -641,11 +672,16 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
 
     const fileName = data.storagePath.slice(expectedPrefix.length);
     try {
-      const { data: storedFiles, error: listError } = await sb.storage
+      let listedFiles = await sb.storage
         .from('media')
         .list(`${projectFolder}/${safeCategory}`, { limit: 100, search: fileName });
-      if (listError) throw new Error(listError.message);
-      const storedFile = storedFiles?.find((file) => file.name === fileName);
+      if (listedFiles.error && isRowLevelSecurityError(listedFiles.error)) {
+        listedFiles = await context.supabase.storage
+          .from('media')
+          .list(`${projectFolder}/${safeCategory}`, { limit: 100, search: fileName });
+      }
+      if (listedFiles.error) throw new Error(listedFiles.error.message);
+      const storedFile = listedFiles.data?.find((file: { name: string }) => file.name === fileName);
       if (!storedFile) throw new Error('O arquivo não chegou ao Storage do Supabase.');
       const storedSize = Number(storedFile.metadata?.size);
       if (Number.isFinite(storedSize) && storedSize > 0 && storedSize !== data.size) {
@@ -672,11 +708,17 @@ export const registerUploadedMedia = createServerFn({ method: 'POST' })
         sort_order: data.sortOrder ?? 0,
         updated_at: new Date().toISOString(),
       };
-      const { data: out, error } = await sb.from('media').insert(row).select('*').single();
-      if (error) throw new Error(error.message);
-      return rowToMedia(out);
+      let inserted = await sb.from('media').insert(row).select('*').single();
+      if (inserted.error && isRowLevelSecurityError(inserted.error)) {
+        inserted = await context.supabase.from('media').insert(row).select('*').single();
+      }
+      if (inserted.error) throw new Error(inserted.error.message);
+      return rowToMedia(inserted.data);
     } catch (error) {
-      await sb.storage.from('media').remove([data.storagePath]);
+      const { error: cleanupError } = await sb.storage.from('media').remove([data.storagePath]);
+      if (cleanupError && isRowLevelSecurityError(cleanupError)) {
+        await context.supabase.storage.from('media').remove([data.storagePath]);
+      }
       throw error;
     }
   });
